@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title%} Activity List {% endblock title%}
+
+{% block body%}
+
+<section class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+               <!--- <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <div class="page-header-title">
+                                    <h5 class="m-b-10">Bootstrap Basic Tables</h5>
+                                </div>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="index.html"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="#!">Tables</a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:">Basic Tables</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            
+
+                            <!-- [ Hover-table ] start -->
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Detailed Report</h5>
+                                    </div>
+                                    
+                                    <div class="card-body card-border-c-green"> <!--card-block table-border-style-->
+
+                                        <form action="" method="post" id="mis_form" name="mis_form">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <!--LEFT CARD-->
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="">From Date</label>
+                                                        <div class="input-group mb-3"> <!--  input-group-sm -->
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar-alt"></i></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" id="txtFromDate" name="txtFromDate"  tabindex="2"
+                                                                   accesskey="" placeholder="YYYY-MM-DD" value="" autocomplete="off" style="background-color:#FFF;cursor:pointer;" readonly="readonly">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!--RIGHT CARD-->
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="" >To Date</label>
+                                                        <div class="input-group mb-3"> <!--  input-group-sm -->
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar-alt"></i></span>
+                                                            </div>
+                                                            <input type="text" class="form-control" id="txtToDate" name="txtToDate"  tabindex="2"
+                                                                   accesskey="" placeholder="YYYY-MM-DD" value="" autocomplete="off" style="background-color:#FFF;cursor:pointer;" readonly="readonly">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <button type="submit" class="btn btn-success" id='btnShow'>Show report</button>
+                                        </form>
+                                        {% if acdata %}
+                                        {% load custom_filters %}
+                                        <hr>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <!-- Table -->
+                                                <div class="card-block table-border-style">
+                                        
+                                        
+                                                    <!--    =========== search result ============= -->
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover" id="activity_list_tab">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Activity Name</th>
+                                                                    <th>Activity Description</th>
+                                                                    <th>Expense</th>
+                                                                    <th>Category Type</th>
+                                                                    <th>Activity Date</th>
+                                                                    <th>Action</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {% for data in acdata %}
+                                                                <tr>
+                                                                    <td>{{ data.ac_name }}</td>
+                                                                    <td>{{ data.ac_desc }}</td>
+                                                                    <td>{{ data.expense }}</td>
+                                                                    <td>{{ data.a_cat.cat_name|format_date_ddmmyyyy }}</td> <!-- Possible due to nested serializer -->
+                                                                    <td>{{ data.a_date }}</td>
+                                        
+                                                                    <td>
+                                                                        {% comment %} <a href="{% url 'edit-cat' data.cat_id %}"
+                                                                            class="btn btn-primary btn-sm">Edit</a>
+                                                                        <a href="{% url 'del-cat' data.cat_id %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
+                                                                    </td>
+                                                                </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Hover-table ] end -->
+
+                           
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock body %}
+
+{% block scripts %}
+
+<script>
+    $(document).ready(function() {
+        $(function() {
+            var table = $('#activity_list_tab').DataTable();
+
+            $( "#txtFromDate" ).datepicker({
+                format: "yyyy-mm-dd",
+                //endDate: 'd',  //<---- displays till date
+                autoclose: true
+            });
+
+            $( "#txtToDate" ).datepicker({
+                format: "yyyy-mm-dd",
+                //endDate: 'd',  //<---- displays till date
+                autoclose: true
+            });
+        });
+   });
+   
+   
+</script>
+
+{% endblock scripts %}

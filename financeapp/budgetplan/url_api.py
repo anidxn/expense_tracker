@@ -12,5 +12,8 @@ rt.register(r'category',views.CatViewSet)
 rt.register(r'activity',views.ActViewSet)
 
 urlpatterns=[
-    path('',include(rt.urls))
+    path('',include(rt.urls)),
+
+    # ------------- Search the tasks by date range -----------------
+    path('actbydate/', views.ActivityAPIView.as_view(), name='act-list-bydate')
 ]

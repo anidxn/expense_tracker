@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
+from datetime import datetime
 
 # Create your views here.
 
@@ -12,7 +13,9 @@ def home(request):
 def dashboard(request):
     return render(request, 'dashboard.html')
 
-
+#------------------------------------
+#        Add new activity 
+#------------------------------------
 def activity_add(request):
     url = 'http://localhost:8085/finapi/activity/'
     
@@ -20,16 +23,22 @@ def activity_add(request):
         ac_name = request.POST.get('txtActName')
         ac_desc = request.POST.get('txtAcDesc')
         expense = float( request.POST.get('txtExpense'))
-        a_cat = request.POST.get('ddlCat')
+        a_cat = request.POST.get('ddlCat')      # URL to category
         a_date = request.POST.get('txtActDate')
+
+        # Step 1: Parse the date string to a datetime object
+        date_obj = datetime.strptime(a_date, '%d/%m/%Y')
+        # Step 2: Format the datetime object to 'YYYY-MM-DD' format
+        formatted_date = date_obj.strftime('%Y-%m-%d')
+
         payload = {
             'ac_name': ac_name,
             'ac_desc': ac_desc,
             'expense': expense,
             'a_cat': a_cat,
-            'a_date': a_date
+            'a_date': formatted_date
         }
-        print(payload)
+        
         try:
             response = requests.post(url, json=payload)
             if response.status_code == 201:
@@ -41,25 +50,28 @@ def activity_add(request):
             print(ex)
             messages.warning(request, "An error occurred during the save process.")
         return redirect('add-activity')
-
-    # Fetch categories for the dropdown
-    try:
-        categories_url = 'http://localhost:8085/finapi/category/'
-        categories_response = requests.get(categories_url)
-        if categories_response.status_code == 200:
-            categories = categories_response.json()
-        else:
+    
+    else:
+        # Fetch categories for the dropdown
+        try:
+            categories_url = 'http://localhost:8085/finapi/category/'
+            categories_response = requests.get(categories_url)
+            if categories_response.status_code == 200:
+                categories = categories_response.json()
+            else:
+                categories = []
+                messages.warning(request, "Failed to retrieve categories.")
+        except Exception as ex:
+            print(ex)
             categories = []
-            messages.warning(request, "Failed to retrieve categories.")
-    except Exception as ex:
-        print(ex)
-        categories = []
-        messages.warning(request, "An error occurred while fetching categories.")
+            messages.warning(request, "An error occurred while fetching categories.")
 
-    return render(request, 'activity-add.html', {'categories': categories})
+        return render(request, 'activity-add.html', {'categories': categories})
 
+#----------------------------------------------------------------
+#                   get list of activities
+#----------------------------------------------------------------
 
-# ------------ get list of activities -------------------
 def getactdata(request):
     url = 'http://localhost:8085/finapi/activity/'
     
@@ -67,7 +79,7 @@ def getactdata(request):
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            print(data)
+            #print(data)
             return render(request, 'activities.html', {'acdata': data})
         else:
             messages.warning(request, "Failed to retrieve data from the API.")
@@ -76,7 +88,9 @@ def getactdata(request):
         messages.warning(request, "An error occurred while fetching data.")
     return render(request, 'index.html')
 
-
+#----------------------------------------------------------------
+#                   SAVE category
+#----------------------------------------------------------------
 def save_cat(request):
     url = 'http://localhost:8085/finapi/category/'
     if request.method == "POST":
@@ -100,7 +114,9 @@ def save_cat(request):
             messages.warning(request, "An error occurred during the save process.")
     return render(request, 'category_add.html')
 
-
+#----------------------------------------------------------------
+#       get category list
+#----------------------------------------------------------------
 def get_catlist(request):
     url = 'http://localhost:8085/finapi/category/'
     
@@ -117,18 +133,18 @@ def get_catlist(request):
         messages.warning(request, "An error occurred while fetching data.")
     return render(request, 'dashboard.html') #***********
 
+# ---------------------------------------------------
+#       EDIT category
+# ---------------------------------------------------
 def edit_cat(request, cat_id):
     url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'  # must teminate with /
 
     if request.method == "POST":
-        
         # get data from form
         cname = request.POST.get('txtName')
-        bplan = request.POST.get('txtBudget')
-        
+        bplan = request.POST.get('txtBudget')        
         # cstatus = request.POST.get('rating') checkbox handling later
        
-
         payload = {
             'cat_name': cname,
             'budget': bplan
@@ -156,8 +172,7 @@ def edit_cat(request, cat_id):
             data = response.json()
             return render(request, 'category_edit.html', {'categorydata' : data})
         
-
-        # --------------- DELETE (One)----------------------
+# --------------- DELETE (One)----------------------
 def del_cat(request, cat_id):
     url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'
 
@@ -173,6 +188,50 @@ def del_cat(request, cat_id):
         messages.warning(request, "Some error occured during delete, check logs for details")
 
     return redirect('/trackmyexp/getcategorylist')
+
+
+def get_act_by_cat(request, cat_id):
+    url = 'http://localhost:8085/finapi/category/' + str(cat_id) + '/activity/'
+
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            # print(data)
+            return render(request, 'activities.html', {'acdata': data})
+        else:
+            messages.warning(request, "Failed to retrieve data from the API.")
+    except Exception as ex:
+        print(ex)
+        messages.warning(request, "An error occurred while fetching data.")
+    
+    return redirect('get-catlist')
+
+
+#=============== REPORTS =====================
+def detailed_report(request):
+    url = 'http://localhost:8085/finapi/actbydate/'
+
+    if request.method == "POST":
+        # get data from form
+        fromDate = request.POST.get('txtFromDate')
+        toDate = request.POST.get('txtToDate')
+
+        url = url + '?start_date=' + fromDate + '&end_date=' + toDate
+
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                #print(data)
+                return render(request, 'reports/detailed_report.html', {'acdata': data})
+            else:
+                messages.warning(request, "Failed to retrieve data from the API.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred while fetching data. Please check logs.")
+        
+    return render(request, 'reports/detailed_report.html')
 
 
 

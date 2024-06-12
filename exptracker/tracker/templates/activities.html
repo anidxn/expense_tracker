@@ -41,9 +41,9 @@
                                     </div>
                                     
                                     <div class="card-block table-border-style">
+                                        {% if acdata %}
                                         <div class="table-responsive">
-
-                                            {% if acdata %}
+                                            {% load custom_filters %}
                                             <table class="table table-hover" id = "activity_list_tab">
                                                 <thead>
                                                     <tr>
@@ -64,18 +64,19 @@
                                                         <td>{{ data.ac_desc }}</td>
                                                         <td>{{ data.expense }}</td>
                                                         <td>{{ data.a_cat.cat_name }}</td>  <!-- Possible due to nested serializer -->
-                                                        <td>{{ data.a_date }}</td>
+                                                        <td>{{ data.a_date|format_date_ddmmyyyy }}</td>
                                                        
                                                         <td>
-                                                           {% comment %} <a href="{% url 'edit-cat' data.cat_id %}" class="btn btn-primary btn-sm">Edit</a>
-                                                            <a href="{% url 'del-cat' data.cat_id %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
+                                                           
+                                                            <a href="#" class="label theme-bg2 text-white f-12" title="Edit this category"><i class="feather icon-edit-1"></i></a>
+                                                            <a href="#" class="label theme-bg text-white f-12"  title="Delete this category"><i class="feather icon-trash-2"></i></a></td>
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
                                                 </tbody>
                                             </table>
-                                            {% endif %}
                                         </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

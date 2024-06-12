@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title%} Category List {% endblock title%}
+{% block title%} Activity List {% endblock title%}
 
 {% block body%}
 
@@ -28,19 +28,6 @@
                 <!-- [ breadcrumb ] end -->
                 <div class="main-body">
                     <div class="page-wrapper">
-
-<!-- ======== the alert box ========= -->
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h4><i class="icon fa fa fa-check"></i> Status </h4>
-            <strong>{{ message }}</strong> 
-        </div>
-    {% endfor %}
-{% endif %}
-<!-- ========= end alert ============= -->
-
                         <!-- [ Main Content ] start -->
                         <div class="row">
                             
@@ -49,33 +36,39 @@
                             <div class="col-xl-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Available Categories</h5>
+                                        <h5>Available Activities</h5>
                                         {% comment %} <span class="d-block m-t-5">use class <code>table-hover</code> inside table element</span> {% endcomment %}
                                     </div>
                                     
                                     <div class="card-block table-border-style">
                                         <div class="table-responsive">
 
-                                            {% if categorydata %}
-                                            <table class="table table-hover " id="cat_list_tab">
+                                            {% if acdata %}
+                                            <table class="table table-hover" id = "activity_list_tab">
                                                 <thead>
                                                     <tr>
-                                                        
-                                                        <th>Category Name</th>
-                                                        <th>Alotted Budget</th>
-                                                        <th>Actions</th>
+                                                        <th>Activity Name</th>
+                                                        <th>Activity Description
+                                    
+                                                    </th><th>Expense</th>
+                                                </th><th>Category Type</th>
+                                                    <th>Activity Date</th>
+                                                    <th>Action</th>
+
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for data in categorydata %}
+                                                    {% for data in acdata %}
                                                     <tr>
-                                                        <td><h6 class="m-0"><a href="{% url 'get-cat-by-cat' data.cat_id %}" title="Show all activities"> {{ data.cat_name }} </a></h6></td>
-                                                        <td><h6 class="m-0">{{ data.budget }}</h6></td>
+                                                        <td>{{ data.ac_name }}</td>
+                                                        <td>{{ data.ac_desc }}</td>
+                                                        <td>{{ data.expense }}</td>
+                                                        <td>{{ data.a_cat.cat_name }}</td>  <!-- Possible due to nested serializer -->
+                                                        <td>{{ data.a_date }}</td>
+                                                       
                                                         <td>
-                                                           {% comment %} <a href="{% url 'edit-cat' data.cat_id %}" class="btn btn-outline-primary btn-sm"><i class="feather icon-edit"></i></a>
-                                                            <a href="{% url 'del-cat' data.cat_id %}" class="btn btn-outline-danger btn-sm"><i class="feather icon-trash"></i></a> {% endcomment %}
-                                                            <a href="{% url 'edit-cat' data.cat_id %}" class="label theme-bg2 text-white f-12" title="Edit this category"><i class="feather icon-edit-1"></i></a>
-                                                            <a href="{% url 'del-cat' data.cat_id %}" class="label theme-bg text-white f-12"  title="Delete this category"><i class="feather icon-trash-2"></i></a></td>
+                                                           {% comment %} <a href="{% url 'edit-cat' data.cat_id %}" class="btn btn-primary btn-sm">Edit</a>
+                                                            <a href="{% url 'del-cat' data.cat_id %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -100,13 +93,26 @@
 {% endblock body %}
 
 {% block scripts %}
-{% comment %} 
+
 <script>
     $(document).ready(function() {
         $(function() {
-            var table = $('#cat_list_tab').DataTable();
+            var table = $('#activity_list_tab').DataTable();
         });
    });
-</script> {% endcomment %}
+   
+   
+</script>
 
 {% endblock scripts %}
+
+
+
+
+
+
+
+
+
+
+

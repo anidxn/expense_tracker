@@ -37,17 +37,7 @@
 </head>
 
 <body>
-    <!-- ======== the alert box ========= -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show my-0" role="alert">  <!-- class="alert alert-warning will change depending upon msg type-->
-  
-                <strong>{{ message }}</strong> 
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-<!-- ========= end alert ============= -->
+    
 
     <!-- [ Pre-loader ] start -->
     <div class="loader-bg">
@@ -99,8 +89,11 @@
                         <label>Reports</label>
                     </li>
                     <li data-username="form elements advance componant validation masking wizard picker select" class="nav-item">
+                        <a href="{% url 'det-rep' %}" class="nav-link ">
+                            <span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Detailed report</span>
+                        </a>
                         <a href="" class="nav-link ">
-                            <span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Expense report</span>
+                            <span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Category wise report</span>
                         </a>
                     </li>
                     

@@ -13,7 +13,7 @@ class CatSerializer(serializers.HyperlinkedModelSerializer):
 class ActSerializer(serializers.HyperlinkedModelSerializer):
     ac_id=serializers.ReadOnlyField()#display read only fields
     # * * * * * * * * * * * *
-    a_cat = CatSerializer()  # Use a nested serializer to include the related category data
+    # a_cat = CatSerializer()  # Use a nested serializer to include the related category data
 
     class Meta:
         model=Activity
