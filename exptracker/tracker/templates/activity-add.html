@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title%} Add activity {% endblock title%}
+
+{% block body%}
+
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+                
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                     
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>New activity</h5>
+                                    </div>
+                                    <div class="card-body card-border-c-green">
+<!--                                            <div class="row">
+                                            <div class="col-md-10">-->
+                                                <form action="" name="activity_form" id="activity_form" method="post" enctype="multipart/form-data">
+                                                    {% csrf_token %}
+                                                    <div class="row">
+                                                         <!--LEFT CARD-->
+                                                        <div class="col-md-6">
+                                                            
+                                                            <div class="form-group">
+                                                                <label for="">Activity Name</label>
+                                                                <input type="text" class="form-control" id="txtActName" name="txtActName" maxlength="100"  tabindex="1">
+                                                                <!--style="text-transform: uppercase"-->
+                                                                <!--<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+                                                            </div>
+                                                            
+                                                            <div class="form-group">
+                                                                <label for="">Expense </label>
+                                                                <div class="input-group  mb-3">  <!-- input-group-sm -->
+                                                                    <div class="input-group-prepend">  
+                                                                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-money-bill-wave"></i></span>
+                                                                    </div>
+                                                                    <input type="text" class="form-control"  id="txtExpense" name="txtExpense" maxlength="12" tabindex="3">
+                                                                </div>
+                                                            </div>
+                                                                
+                                                            <div class="form-group">
+                                                                <label for="">Activity description</label>
+                                                                <textarea class="form-control" id="txtAcDesc" name="txtAcDesc" rows="3" placeholder="Any additional information"  tabindex="6"></textarea>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                         <!--RIGHT CARD-->
+                                                        <div class="col-md-6">
+                                                            
+                                                            <div class="form-group">
+                                                                <label for="">Purchase Date</label>
+                                                                <div class="input-group mb-3"> <!--  input-group-sm -->
+                                                                    <div class="input-group-prepend">
+                                                                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar-alt"></i></span>
+                                                                    </div>
+                                                                    <input type="text" class="form-control" id="txtActDate" name="txtActDate"  tabindex="2"
+                                                                           accesskey="" placeholder="DD/MM/YYYY" value="" autocomplete="off" style="background-color:#FFF;cursor:pointer;" readonly="readonly">
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="form-group">
+                                                                <label for="">Expense Category</label>
+                                                                <select class="form-control" id="ddlCat" name="ddlCat" tabindex="4">
+                                                                    {% for data in categories %}
+                                                                    <option value="{{data.url}}"> {{data.cat_name}}</option>
+                                                                    {% endfor %}
+                                                                    
+                                                                   
+                                                                </select>
+                                                            </div>
+                                                            
+                                                            
+                                                            
+                                                            
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="btn btn-success" id='btnSave'><i class='fa fa-save'></i>Save activity</button>
+                                                    
+                                                    <!-- <input type="hidden" id="hdnUpdtype" name="hdnUpdtype" value="1"> -->
+                                                </form>
+                                                    
+                                                    
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock body%}
+
+
+{% block scripts %}
+
+<script>
+    $(document).ready(function() {
+        $(function() {
+            $("#txtOrdNum").autocomplete({     
+                source : function(request, response) {
+                    $.ajax({
+                        url :  "/AjaxAutofill",
+                        type : "GET",
+                        data : {
+                            term : request.term,
+                            searchField : 11
+                        },
+                        dataType : "json",
+                        success : function(data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength : 3
+            });
+            
+            
+            $( "#txtActDate" ).datepicker({
+                format: "yyyy-mm-dd",
+                //endDate: 'd',  //<---- displays till date
+                autoclose: true
+            });
+            
+        });
+        
+        $("#txtOrdAmt").on("keypress keyup blur",function (event) {
+            //this.value = this.value.replace(/[^0-9\.]/g,'');
+            $(this).val($(this).val().replace(/[^0-9\.]/g,''));
+            if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+                event.preventDefault();
+            }
+        });
+        
+        $('#btnSave').click(function() {
+            /*
+            if($('#txtRemark').val().length != 0){
+                var inputVal = $('#txtRemark').val();
+                alert(inputVal);
+                var re = /^[a-zA-Z 0-9\.\,\-\(\)\/\_\\]$/; // /^([a-zA-Z0-9]{0,8})$/;
+                if(!inputVal.match(re)){ //(!re.test(inputVal)) {
+                    alert('Please select a valid remark.');
+                    $('#txtRemark').focus();
+                    return false;
+                } else
+                    alert('ok');
+            } else
+                if($('#txtOrdNum').val().length == 0){
+                alert('Please provide an purchase order number.');
+                $('#txtOrdNum').focus();
+                return false;
+            } else if($('#txtOrdDt').val().length == 0){ //also check format
+                alert('Please select purchase order date.');
+                $('#txtOrdDt').focus();
+                return false;
+            } else if($('#txtOrdAmt').val().length == 0){ //also check format
+                alert('Please select a valid purchase order amount.');
+                $('#txtOrdAmt').focus();
+                return false;
+            }*/
+            
+            $("#activity_form").submit();
+	});
+        
+   });
+   
+   
+</script>
+
+{% endblock scripts %}

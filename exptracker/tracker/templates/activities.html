@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title%} Activity List {% endblock title%}
+
+{% block body%}
+
+<section class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+               <!--- <div class="page-header">
+                    <div class="page-block">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <div class="page-header-title">
+                                    <h5 class="m-b-10">Bootstrap Basic Tables</h5>
+                                </div>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="index.html"><i class="feather icon-home"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="#!">Tables</a></li>
+                                    <li class="breadcrumb-item"><a href="javascript:">Basic Tables</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            
+
+                            <!-- [ Hover-table ] start -->
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Available Activities</h5>
+                                        {% comment %} <span class="d-block m-t-5">use class <code>table-hover</code> inside table element</span> {% endcomment %}
+                                    </div>
+                                    
+                                    <div class="card-block table-border-style">
+                                        <div class="table-responsive">
+
+                                            {% if acdata %}
+                                            <table class="table table-hover" id = "activity_list_tab">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Activity Name</th>
+                                                        <th>Activity Description
+                                    
+                                                    </th><th>Expense</th>
+                                                </th><th>Category Type</th>
+                                                    <th>Activity Date</th>
+                                                    <th>Action</th>
+
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for data in acdata %}
+                                                    <tr>
+                                                        <td>{{ data.ac_name }}</td>
+                                                        <td>{{ data.ac_desc }}</td>
+                                                        <td>{{ data.expense }}</td>
+                                                        <td>{{ data.a_cat.cat_name }}</td>  <!-- Possible due to nested serializer -->
+                                                        <td>{{ data.a_date }}</td>
+                                                       
+                                                        <td>
+                                                           {% comment %} <a href="{% url 'edit-cat' data.cat_id %}" class="btn btn-primary btn-sm">Edit</a>
+                                                            <a href="{% url 'del-cat' data.cat_id %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Hover-table ] end -->
+
+                           
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock body %}
+
+{% block scripts %}
+
+<script>
+    $(document).ready(function() {
+        $(function() {
+            var table = $('#activity_list_tab').DataTable();
+        });
+   });
+   
+   
+</script>
+
+{% endblock scripts %}
+
+
+
+
+
+
+
+
+
+
+

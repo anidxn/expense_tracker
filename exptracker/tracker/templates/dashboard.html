@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title%} Home {% endblock title%}
+
+{% block body%}
+
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <!--[ daily sales section ] start-->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card daily-sales">
+                                    <div class="card-block">
+                                        <h6 class="mb-4">Daily Sales</h6>
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-9">
+                                                <h3 class="f-w-300 d-flex align-items-center m-b-0"><i class="feather icon-arrow-up text-c-green f-30 m-r-10"></i>$ 249.95</h3>
+                                            </div>
+
+                                            <div class="col-3 text-right">
+                                                <p class="m-b-0">67%</p>
+                                            </div>
+                                        </div>
+                                        <div class="progress m-t-30" style="height: 7px;">
+                                            <div class="progress-bar progress-c-theme" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--[ daily sales section ] end-->
+                            <!--[ Monthly  sales section ] starts-->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card Monthly-sales">
+                                    <div class="card-block">
+                                        <h6 class="mb-4">Monthly Sales</h6>
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-9">
+                                                <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather icon-arrow-down text-c-red f-30 m-r-10"></i>$ 2.942.32</h3>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <p class="m-b-0">36%</p>
+                                            </div>
+                                        </div>
+                                        <div class="progress m-t-30" style="height: 7px;">
+                                            <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--[ Monthly  sales section ] end-->
+                            <!--[ year  sales section ] starts-->
+                            <div class="col-md-12 col-xl-4">
+                                <div class="card yearly-sales">
+                                    <div class="card-block">
+                                        <h6 class="mb-4">Yearly Sales</h6>
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-9">
+                                                <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather icon-arrow-up text-c-green f-30 m-r-10"></i>$ 8.638.32</h3>
+                                            </div>
+                                            <div class="col-3 text-right">
+                                                <p class="m-b-0">80%</p>
+                                            </div>
+                                        </div>
+                                        <div class="progress m-t-30" style="height: 7px;">
+                                            <div class="progress-bar progress-c-theme" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--[ year  sales section ] end-->
+                             <!-- [ Morris Chart ] start -->
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Line [ Angle ] Chart</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <div id="morris-area-chart" style="height:300px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Area [ Smooth ] Chart</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <div id="morris-area-curved-chart" style="height:300px"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Donut Chart</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <div id="morris-donut-chart" style="height:300px"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                             <!-- [ Morris Chart ] Ends -->
+
+
+                            
+
+                            <!-- [ statistics year chart ] start -->
+                            
+                            <!-- [ statistics year chart ] end -->
+                            <!--[social-media section] start-->
+                            
+                            
+                            
+                            <!--[social-media section] end-->
+                            <!-- [ rating list ] starts-->
+                            
+                            <!-- [ rating list ] end-->
+                            
+
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock body%}
+
+{% block scripts %}
+
+
+
+<script>
+    $(document).ready(function() {
+        setTimeout(function() {
+            // [ area-angle-chart ] start
+    Morris.Area({
+        element: 'morris-area-chart',
+        data: [{
+                y: '2006',
+                a: 0,
+                b: 0
+            },
+            {
+                y: '2007',
+                a: 130,
+                b: 100
+            },
+            {
+                y: '2008',
+                a: 80,
+                b: 60
+            },
+            {
+                y: '2009',
+                a: 70,
+                b: 200
+            },
+            {
+                y: '2010',
+                a: 220,
+                b: 150
+            },
+            {
+                y: '2011',
+                a: 105,
+                b: 90
+            },
+            {
+                y: '2012',
+                a: 250,
+                b: 150
+            }
+        ],
+        xkey: 'y',
+        ykeys: ['a', 'b'],
+        labels: ['Series A', 'Series B'],
+        pointSize: 0,
+        fillOpacity: 0.8,
+        pointStrokeColors: ['#b4becb', '#A389D4'],
+        behaveLikeLine: true,
+        gridLineColor: '#e0e0e0',
+        lineWidth: 0,
+        smooth: false,
+        hideHover: 'auto',
+        responsive:true,
+        lineColors: ['#b4becb', '#A389D4'],
+        resize: true
+    });
+    // [ area-angle-chart ] end
+
+    // [ area-smooth-chart ] start
+    Morris.Area({
+        element: 'morris-area-curved-chart',
+        data: [{
+            period: '2010',
+            iphone: 0,
+            ipad: 0,
+            itouch: 0
+        }, {
+            period: '2011',
+            iphone: 50,
+            ipad: 15,
+            itouch: 5
+        }, {
+            period: '2012',
+            iphone: 20,
+            ipad: 50,
+            itouch: 65
+        }, {
+            period: '2013',
+            iphone: 60,
+            ipad: 12,
+            itouch: 7
+        }, {
+            period: '2014',
+            iphone: 30,
+            ipad: 20,
+            itouch: 120
+        }, {
+            period: '2015',
+            iphone: 25,
+            ipad: 80,
+            itouch: 40
+        }, {
+            period: '2016',
+            iphone: 10,
+            ipad: 10,
+            itouch: 10
+        }],
+        lineColors: ['#A389D4', '#1de9b6', '#04a9f5'],
+        xkey: 'period',
+        ykeys: ['iphone', 'ipad', 'itouch'],
+        labels: ['Site A', 'Site B', 'Site C'],
+        pointSize: 0,
+        lineWidth: 0,
+        resize: true,
+        fillOpacity: 0.9,
+        responsive:true,
+        behaveLikeLine: true,
+        gridLineColor: '#d2d2d2',
+        hideHover: 'auto'
+    });
+
+    var graph = Morris.Donut({
+        element: 'morris-donut-chart',
+        data: [{
+                value: 60,
+                label: 'Data 1'
+            },
+            {
+                value: 20,
+                label: 'Data 1'
+            },
+            {
+                value: 10,
+                label: 'Data 1'
+            },
+            {
+                value: 5,
+                label: 'Data 1'
+            }
+        ],
+        colors: [
+            '#1de9b6',
+            '#A389D4',
+            '#04a9f5',
+            '#1dc4e9',
+        ],
+        resize: true,
+        formatter: function(x) {
+            return "val : " + x
+        }
+    });  
+
+    // [ Donut-chart ] end
+}, 700);
+});
+
+</script>
+
+{% endblock scripts %}

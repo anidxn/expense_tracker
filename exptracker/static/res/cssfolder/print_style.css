@@ -1,0 +1,399 @@
+/* Styles go here */
+
+* {
+    font-size: 12px;
+    font-family: 'Times New Roman'; /*Fixedsys*/
+}
+
+td,
+th,
+tr,
+table {
+    /* border-top: 1px solid black;*/
+    border-collapse: collapse;
+}
+/*--------- HEDER --------------*/
+td.header-img {
+    width: 20mm;
+    max-width: 20mm;
+}
+
+img {
+    max-width: inherit;
+    width: inherit;
+}
+
+td.header-left-half {
+    width: 75mm;
+    max-width: 75mm;
+}
+
+td.header-office-addr {
+    width: 75mm;
+    max-width: 75mm;
+}
+
+td.header-report-num {
+    width: 75mm;
+    max-width: 75mm;
+}
+
+td.header-office-addr-expand {
+    width: 150mm;
+    max-width: 150mm;
+}
+
+td.header-itemcat {
+    width: 50mm;
+    max-width: 50mm;
+    vertical-align: super;
+}
+
+td.header-report-date {
+    width: 45mm;
+    max-width: 45mm;
+    vertical-align: super;
+}
+
+td.header-page-num {
+    width: 18mm;
+    max-width: 18mm;
+    vertical-align: super;
+}
+
+td.header-page-count {
+    width: 17mm;
+    max-width: 17mm;
+    vertical-align: super;
+}
+
+td.header-engg-sign {
+    width: 40mm;
+    max-width: 40mm;
+    vertical-align: super;
+}
+/*--------------------------*/
+td.left-header {
+    text-align: left;
+	vertical-align: super;
+	font-weight: bold;
+	padding-left: 10px;
+	width: 30%;
+}
+
+td.left-sub-header {
+    text-align: left;
+	vertical-align: super;
+	font-weight: bold;
+	padding-left: 30px;
+	width: 40%;
+}
+
+td.left-data {
+    text-align: left;
+	vertical-align: super;
+	padding-left: 10px;
+	width: 60%;
+}
+
+.centered {
+    text-align: center;
+    align-content: center;
+}
+/* ========= PAGE 1 headers =============*/
+th.serial-num {
+    text-align: center;
+    align-content: center;
+    font-weight: bold;
+	/* height: 30px; 
+	padding:  10px 10px; */
+	width: 10mm;
+    max-width: 10mm;
+}
+
+th.param {
+    text-align: center;
+    align-content: center;
+    font-weight: bold;
+	/* height: 30px; */
+    padding:  10px 10px;
+    width: 40mm;
+    max-width: 40mm;
+	/* word-break: break-all; */
+}
+
+th.stdval {
+    text-align: center;
+    align-content: center;
+    font-weight: bold;
+    padding:  10px 10px;
+    width: 50mm;
+    max-width: 50mm;
+	/* word-break: break-all; */
+}
+
+th.obsval {
+    text-align: center;
+    align-content: center;
+	font-weight: bold;
+	padding:  10px 10px;
+	width: 50mm;
+    max-width: 50mm;
+	/* word-break: break-all; */
+}
+
+th.remarks {
+    text-align: center;
+    align-content: center;
+	font-weight: bold;
+	padding:  10px 10px;
+	width: 20mm;
+    max-width: 20mm;
+	/* word-break: break-all; */
+}
+
+/*--- data cells ----*/
+td.serial-num {
+    text-align: center;
+    vertical-align: top;
+    align-content: center;
+    width: 10mm;
+    max-width: 10mm;
+}
+
+td.param {
+    width: 40mm;
+    max-width: 40mm;
+    padding: 4px;
+    vertical-align: top;
+	/* word-break: break-all; */
+}
+
+td.stdval {
+    width: 50mm;
+    max-width: 50mm;
+    padding: 4px;
+    vertical-align: top;
+	/* word-break: break-all; */
+}
+
+td.obsval {
+    width: 50mm;
+    max-width: 50mm;
+    padding: 4px;
+    vertical-align: top;
+	/* word-break: break-all; */
+}
+
+td.remarks {
+    text-align: center;
+    vertical-align: top;
+    align-content: center;
+    width: 20mm;
+    max-width: 20mm;
+	/* word-break: break-all; */
+}
+
+td.conclusion {
+    width: 95%;
+    vertical-align: super;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 14;
+}
+
+/*-------- billing styles ---------*/
+td.bill-gst-invoice {
+    width: 85mm;
+    max-width: 85mm;
+    font-weight: bold;
+/*    vertical-align: super;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 14;  */
+}
+
+td.bill-office-addr {
+    width: 85mm;
+    max-width: 85mm;
+    font-weight: bold;
+/*    vertical-align: super; */
+}
+
+td.bill-gst-invoice-alt {
+    width: 85mm;
+    max-width: 85mm;
+}
+
+td.bill-office-addr-alt {
+    width: 85mm;
+    max-width: 85mm;
+}
+
+th.bill-slno {
+    width: 10mm;
+    max-width: 10mm;
+    font-weight: bold;
+    background: #c0c0c0;
+}
+
+th.bill-items {
+    width: 90mm;
+    max-width: 90mm;
+    font-weight: bold;
+    background: #c0c0c0;
+}
+
+th.bill-qty {
+    width: 10mm;
+    max-width: 10mm;
+    font-weight: bold;
+    background: #c0c0c0;
+}
+
+th.bill-uc {
+    width: 30mm;
+    max-width: 30mm;
+    font-weight: bold;
+    background: #c0c0c0;
+}
+
+th.bill-amt {
+    width: 30mm;
+    max-width: 30mm;
+    font-weight: bold;
+    background: #c0c0c0;
+}
+
+td.bill-slno {
+    width: 10mm;
+    max-width: 10mm;
+    vertical-align: top;
+    text-align: center;
+}
+
+td.bill-items {
+    width: 90mm;
+    max-width: 90mm;
+    vertical-align: top;
+}
+
+td.bill-qty {
+    width: 10mm;
+    max-width: 10mm;
+    vertical-align: top;
+    text-align: center;
+}
+
+td.bill-uc {
+    width: 30mm;
+    max-width: 30mm;
+    vertical-align: top;
+    text-align: right;
+}
+
+td.bill-amt {
+    width: 30mm;
+    max-width: 30mm;
+    vertical-align: top;
+    text-align: right;
+}
+
+td.bill-comment {
+    width: 140mm;
+    max-width: 140mm;
+    vertical-align: top;
+    text-align: right;
+}
+
+td.bill-sub-comment-1 {
+    width: 110mm;
+    max-width: 110mm;
+    text-align: left;
+}
+
+td.bill-sub-comment-2 {
+    width: 30mm;
+    max-width: 30mm;
+    text-align: right;
+}
+/* * * * * * * * * * * * * * * following are for scrollable printing  * * * * * * * * * * * * * * */
+.page-header, .page-header-space {
+  height: 80px;
+}
+
+.page-footer, .page-footer-space {
+  height: 30px;
+
+}
+
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid black; /* for demo */
+  background: greenyellow; /* for demo */
+  text-align: center;
+}
+
+.page-header {
+  position: fixed;
+  top: 0mm;
+  width: 100%;
+  /* border-bottom: 1px solid black;*/ /* for demo */
+  background: greenyellow; /* for demo */
+}
+
+/** ===== for billing ==== **/
+.bill-page-header, .bill-page-header-space {
+  height: 130px;
+}
+
+.bill-page-footer, .bill-page-footer-space {
+  height: 20px;
+}
+
+.bill-page-header {
+  position: fixed;
+  top: 0mm;
+  width: 100%;
+  /* border-bottom: 1px solid black;*/ /* for demo */
+  background: greenyellow; /* for demo */
+}
+
+.bill-page-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid black; /* for demo */
+  background: greenyellow; /* for demo */
+  text-align: center;
+}
+
+/* - - - - COMMON For Main Body content- - - - - */
+.page {
+  page-break-after: always;
+}
+
+@page {
+  margin: 20mm;
+  /*
+  @bottom-right {
+	  content: counter(page) " of " counter(pages);
+  } */
+}
+
+@page {
+       @bottom-left {
+            content: counter(page) "/" counter(pages);
+        }
+     }
+
+@media print {
+   thead {display: table-header-group;} 
+   tfoot {display: table-footer-group;}
+   
+   button {display: none;}
+   
+   body {margin: 0;}
+}

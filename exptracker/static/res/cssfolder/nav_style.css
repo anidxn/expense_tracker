@@ -1,0 +1,138 @@
+/*This theme can only be used as button like v: 5.1 */
+
+body {
+  background-color: #EBE8E4;
+ /* color: #222;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-weight: 300;
+  font-size: 15px;*/
+}
+
+nav {
+  /*navbar background color*/
+  background-color: rgb( 30,150,220 );
+  border: 0px solid #dededf;
+  border-radius: 4px;
+  box-shadow: 3px 3px 2px -1px rgba(0, 0, 0, 0.55);
+  color: #888; /* default font color */
+  display: block;
+  margin: 4px 4px 10px;
+  overflow: hidden;
+  width: 98%; 
+}
+
+  nav ul {
+    margin: 0;
+    padding: 0;
+  }
+
+    nav ul li {
+       display: inline-block; 
+      list-style-type: none;
+	background-color: #99ccff; /*rgb( 50, 210, 240 );*/
+	
+	/* make it like buttons */
+	border-radius: 3px;
+	margin: 1px 0px 1px 0px;
+	
+      
+      -webkit-transition: all 0.2s;
+        -moz-transition: all 0.2s;
+        -ms-transition: all 0.2s;
+        -o-transition: all 0.2s;
+        transition: all 0.2s; 
+    }
+      
+      nav > ul > li > a > .caret {
+        border-top: 4px solid rgb( 0, 110, 140 );  /* caret color = same as text color*/
+        border-right: 4px solid transparent;
+        border-left: 4px solid transparent;
+        content: "";
+        display: inline-block;
+        height: 0;
+        width: 0;
+        vertical-align: middle;
+  
+        -webkit-transition: color 0.1s linear;
+     	  -moz-transition: color 0.1s linear;
+       	-o-transition: color 0.1s linear;
+          transition: color 0.1s linear; 
+      }
+
+      nav > ul > li > a {
+        color: rgb( 0, 90, 120 );    /*  #aaa text color*/
+        display: block;
+        line-height: 40px;   /* height of menu */
+        padding: 0 20px;
+        text-decoration: none;
+	
+	/* added for font -- Prasenjit */
+	font-size: 12px;
+	letter-spacing: 1px;
+	font-family: 'Lato',sans-serif;
+	text-transform: uppercase; 
+	font-weight: 700;
+	
+      }
+
+        nav > ul > li:hover {
+          background-color: #006699; /*rgb( 5, 165, 195 );  /* during hover background color */
+        }
+
+        nav > ul > li:hover > a {
+          color: rgb( 255, 255, 255);   /* during hovering color of the text */
+        }
+
+        nav > ul > li:hover > a > .caret {
+          border-top-color: rgb( 255, 255, 255 );
+        }
+      
+      nav > ul > li > div {
+        background-color: rgb( 0, 160, 190 );
+        border-top: 0;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 3px 3px 2px -1px rgba(0, 0, 0, 0.55);
+        display: none;
+        margin: 0;
+        opacity: 0;
+        position: absolute;
+        width: 165px;
+	visibility: hidden;
+	z-index: 100;
+  
+        -webkit-transiton: opacity 0.2s;
+        -moz-transition: opacity 0.2s;
+        -ms-transition: opacity 0.2s;
+        -o-transition: opacity 0.2s;
+        -transition: opacity 0.2s;
+      }
+
+        nav > ul > li:hover > div {
+          display: block;
+          opacity: 1;
+          visibility: visible;
+        }
+
+          nav > ul > li > div ul > li {
+            display: block;
+	    background-color: #006695; /* rgb( 30,190,220 );*/ /*rgb( 0, 160, 190 );*/ /*background color for sublist items*/
+          }
+
+            nav > ul > li > div ul > li > a {
+              color: white; /*rgb(  0, 90, 120 ); !black; !rgb( 0, 160, 190 );*/
+              display: block;
+              padding: 12px 24px;
+              text-decoration: none;
+
+	      /* added for font -- Prasenjit */
+	      font-size: 12px;
+	      letter-spacing: 1px;
+	      font-family: 'Lato',sans-serif;
+	      text-transform: uppercase; 
+	      font-weight: 700;
+            }
+
+              nav > ul > li > div ul > li:hover > a {
+                background-color: rgb( 255, 255, 255 );
+		color: rgb( 0, 90, 120 ); /*#99ccff;*/
+              }
