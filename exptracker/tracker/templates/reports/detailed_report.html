@@ -95,7 +95,7 @@
                                                                     <th>Expense</th>
                                                                     <th>Category Type</th>
                                                                     <th>Activity Date</th>
-                                                                    <th>Action</th>
+                                                                    
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -106,12 +106,6 @@
                                                                     <td>{{ data.expense }}</td>
                                                                     <td>{{ data.a_cat.cat_name|format_date_ddmmyyyy }}</td> <!-- Possible due to nested serializer -->
                                                                     <td>{{ data.a_date }}</td>
-                                        
-                                                                    <td>
-                                                                        {% comment %} <a href="{% url 'edit-cat' data.cat_id %}"
-                                                                            class="btn btn-primary btn-sm">Edit</a>
-                                                                        <a href="{% url 'del-cat' data.cat_id %}" class="btn btn-danger btn-sm">Delete</a> {% endcomment %}
-                                                                    </td>
                                                                 </tr>
                                                                 {% endfor %}
                                                             </tbody>

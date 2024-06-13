@@ -26,6 +26,8 @@ class Activity(models.Model):
     expense=models.DecimalField(max_digits = 9, decimal_places = 2)
     a_cat = models.ForeignKey(Category, on_delete=models.CASCADE, default = 1)
     a_date=models.DateField()
+    updated_at = models.DateField(auto_now = True)
+
     def __str__(self) :
         return self.ac_name
 
