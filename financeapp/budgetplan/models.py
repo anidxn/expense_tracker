@@ -17,6 +17,10 @@ class Category(models.Model):
 
     def __str__(self) :
         return self.cat_name
+    
+    class Meta:
+        ordering = ['cat_name']
+        verbose_name_plural = "Categories"
 
 
 class Activity(models.Model):
@@ -30,5 +34,9 @@ class Activity(models.Model):
 
     def __str__(self) :
         return self.ac_name
+    
+    class Meta:
+        ordering = ['-a_date']  # order by date descending
+        verbose_name_plural = "Activities"
 
 

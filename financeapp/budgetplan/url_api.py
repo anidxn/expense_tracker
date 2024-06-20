@@ -15,5 +15,8 @@ urlpatterns=[
     path('',include(rt.urls)),
 
     # ------------- Search the tasks by date range -----------------
-    path('actbydate/', views.ActivityAPIView.as_view(), name='act-list-bydate')
+    path('activityfilter/', views.ActivityAPIView.as_view(), name='activity-filter'),
+    #path('expbycat/', views.catwise_exp, name='exp-by-cat'),
+    path('categoryexpfilter/', views.CategoryAPIView.as_view(), name='exp-by-cat'),
+    
 ]

@@ -1,13 +1,19 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from . models import Category, Activity
-from .serializers import CatSerializer, ActivitySerializer, ActivityCategoryLinkSerializer
+from .serializers import CatSerializer, ActivitySerializer, ActivityCategoryLinkSerializer, CategoryExpenditureSerializer
 
 #for custom apis
 from rest_framework.decorators import action
 
 # for filteration
 from rest_framework import generics, filters
+
+# for category wise total expense
+from django.db.models import Sum, F
+# for last 6 month aggregate total expenditure
+from django.db.models.functions import TruncMonth
+from datetime import datetime, timedelta
 
 #we create a viewset class by extending viewsets.ModelViewSet which provides default create(),retrieve(),list(),update(),partialupdate(),destroy() actions
 class CatViewSet(viewsets.ModelViewSet):
@@ -51,6 +57,12 @@ class ActViewSet(viewsets.ModelViewSet):
 #-------------------------------------------------------------
 #               SEARCH by Date Range
 #-------------------------------------------------------------
+"""
+create a view class by extending viewsets.ListAPIView which is specialized view that only provides read-only access 
+to a list of objects. It supports GET requests to list a queryset.
+"""
+
+
 class ActivityAPIView(generics.ListAPIView):
     serializer_class = ActivityCategoryLinkSerializer
     
@@ -63,5 +75,126 @@ class ActivityAPIView(generics.ListAPIView):
         return queryset
     
     """
-    http://localhost:8085/finapi/actbydate/?start_date=2023-01-01&end_date=2023-12-31
+    http://localhost:8085/finapi/activityfilter/?start_date=2023-01-01&end_date=2023-12-31
     """
+
+#--------------------------------------------------------------------------------------------------
+#     Aggregate category wise total expense & SEARCH category by Tags / min budget / max budget
+#-----------------------------------------------------------------------------------------------------
+class CategoryAPIView(generics.ListAPIView):
+    # queryset = Category.objects.annotate(total_expenditure=Sum('activity__expense'))
+    serializer_class = CategoryExpenditureSerializer
+
+    def get_queryset(self):
+        queryset = Category.objects.annotate(total_expenditure=Sum('activity__expense')) # total_expenditure is the custom field name
+
+        # Get query parameters
+        cat_tag = self.request.query_params.get('cat_tag', None)
+        min_budget = self.request.query_params.get('min_budget', None)
+        max_budget = self.request.query_params.get('max_budget', None)
+
+        # Filter queryset based on query parameters
+        if cat_tag:
+            queryset = queryset.filter(cat_tags=cat_tag)
+        if min_budget:
+            queryset = queryset.filter(budget__gte=min_budget)
+        if max_budget:
+            queryset = queryset.filter(budget__lte=max_budget)
+
+        return queryset
+    
+    """
+        http://localhost:8085/finapi/categoryexpfilter/
+        http://localhost:8085/finapi/categoryexpfilter/?cat_tag=Must
+        http://localhost:8085/finapi/categoryexpfilter/?min_budget=1000
+        http://localhost:8085/finapi/categoryexpfilter/?max_budget=5000
+        http://localhost:8085/finapi/categoryexpfilter/?cat_tag=Need&min_budget=1000&max_budget=5000
+    """
+    
+    """
+    return month-wise total expenditure group by cat_tag and for the last 6 months.
+    """
+    def list(self, request, *args, **kwargs):
+        # Calculate the date for 6 months ago
+        six_months_ago = datetime.today() - timedelta(days=6*30)
+
+        # Filter activities in the last 6 months
+        activities = Activity.objects.filter(a_date__gte=six_months_ago)
+
+        # Annotate month and group by month and cat_tag
+        expenditures = activities.annotate(
+            month=TruncMonth('a_date')
+        ).values(
+            'month', 'a_cat__cat_tags'
+        ).annotate(
+            total_expenditure=Sum('expense')
+        ).order_by('month', 'a_cat__cat_tags')
+
+        # Process the data to group by month and cat_tag
+        result = {}
+        for expenditure in expenditures:
+            month = expenditure['month'].strftime('%Y-%m')
+            cat_tag = expenditure['a_cat__cat_tags']
+            if month not in result:
+                result[month] = {}
+            if cat_tag not in result[month]:
+                result[month][cat_tag] = 0
+            result[month][cat_tag] += expenditure['total_expenditure']
+
+        return Response(result)
+    
+    # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    def get_queryset(self):
+        # Calculate the date for 6 months ago
+        six_months_ago = datetime.today() - timedelta(days=6*30)
+
+        # Filter activities in the last 6 months
+        queryset = Activity.objects.filter(a_date__gte=six_months_ago)
+
+        # Annotate month and group by month and cat_tag
+        queryset = queryset.annotate(
+            month=TruncMonth('a_date')
+        ).values(
+            'month', 'a_cat__cat_tags'
+        ).annotate(
+            total_expenditure=Sum('expense')
+        ).order_by('month', 'a_cat__cat_tags')
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        # Process the data to group by month and cat_tag
+        result = {}
+        for expenditure in queryset:
+            month = expenditure['month'].strftime('%Y-%m')
+            cat_tag = expenditure['a_cat__cat_tags']
+            if month not in result:
+                result[month] = {}
+            if cat_tag not in result[month]:
+                result[month][cat_tag] = 0
+            result[month][cat_tag] += expenditure['total_expenditure']
+
+        return Response(result)
+
+
+# # -------------------------------------------------------------------
+# #       Dashboard Data
+# # -------------------------------------------------------------------
+# from rest_framework.decorators import api_view
+# from rest_framework import status
+
+
+# @api_view(['GET'])
+# def catwise_exp(request):
+#     categories = Category.objects.annotate(total_expenditure=Sum('activity__expense'))
+#     # serializer = Cat(task_list, many = True)  # many = True --> bcz of many record objects are populated
+
+#     return Response(
+#         {
+#             "message": "Record fetched",
+#             "Data" : categories
+#         },
+#         status = status.HTTP_200_OK
+#         )

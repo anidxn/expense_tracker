@@ -11,6 +11,19 @@ def home(request):
 
 
 def dashboard(request):
+    catexpurl = 'http://localhost:8085/finapi/categoryexpfilter/'
+    
+    try:
+        response = requests.get(catexpurl)
+        if response.status_code == 200:
+            data = response.json()
+            #print(data)
+            return render(request, 'dashboard.html', {'tot_cat_exp_data': data})
+        else:
+            messages.warning(request, "Failed to retrieve data from the API.")
+    except Exception as ex:
+        print(ex)
+        messages.warning(request, "An error occurred while fetching data.")
     return render(request, 'dashboard.html')
 
 #------------------------------------
@@ -89,6 +102,72 @@ def getactdata(request):
     return render(request, 'index.html')
 
 #----------------------------------------------------------------
+#                   EDit an Activity
+#----------------------------------------------------------------
+def edit_activity(request, ac_id):
+    url = f'http://localhost:8085/finapi/activity/{ac_id}/'
+    categories_url = 'http://localhost:8085/finapi/category/'
+
+    if request.method == "POST":
+        ac_name = request.POST.get('txtActName')
+        ac_desc = request.POST.get('txtAcDesc')
+        expense = request.POST.get('txtExpense')
+        a_cat = request.POST.get('ddlCat')
+        a_date = request.POST.get('txtActDate')
+
+        payload = {
+            'ac_name': ac_name,
+            'ac_desc': ac_desc,
+            'expense': expense,
+            'a_cat': a_cat,
+            'a_date': a_date
+        }
+        try:
+            response = requests.put(url, json=payload)
+            if response.status_code == 200:
+                messages.success(request, "Activity updated successfully.")
+                return redirect('get-act')
+            else:
+                messages.warning(request, "Failed to update activity.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred during the update process.")
+
+    try:
+        activity_response = requests.get(url)
+        categories_response = requests.get(categories_url)
+        if activity_response.status_code == 200 and categories_response.status_code == 200:
+            activity_data = activity_response.json()
+            categories = categories_response.json()
+            return render(request, 'activity_edit.html', {'activity_data': activity_data, 'categories': categories})
+        else:
+            messages.warning(request, "Failed to retrieve activity or categories.")
+    except Exception as ex:
+        print(ex)
+        messages.warning(request, "An error occurred while fetching data.")
+
+    return redirect('get-act')
+
+#----------------------------------------------------------------
+#                   DELTE Activity
+#----------------------------------------------------------------
+def del_activity(request, ac_id):
+    url = f'http://127.0.0.1:8085/finapi/activity/{ac_id}/'
+
+    try:
+        response = requests.delete(url)
+    
+        if response.status_code == 204:
+            messages.success(request, "Activity deleted successfully.")
+        else:
+            messages.warning(request, "Failed to delete activity. Remote server did not respond properly.")
+    except Exception as ex:
+        print(ex)
+        messages.warning(request, "An error occurred during the delete process. Check logs for details.")
+
+    return redirect('get-act')
+
+#----------------------------------------------------------------
 #                   SAVE category
 #----------------------------------------------------------------
 def save_cat(request):
@@ -124,14 +203,14 @@ def get_catlist(request):
         response = requests.get(url)
         if response.status_code == 200:
             data = response.json()
-            print(data)
+            #print(data)
             return render(request, 'category.html', {'categorydata': data})
         else:
             messages.warning(request, "Failed to retrieve data from the API.")
     except Exception as ex:
         print(ex)
         messages.warning(request, "An error occurred while fetching data.")
-    return render(request, 'dashboard.html') #***********
+    return redirect('/trackmyexp/dash') #***********
 
 # ---------------------------------------------------
 #       EDIT category
@@ -155,7 +234,7 @@ def edit_cat(request, cat_id):
 
         if response.status_code == 200:   # response 200
             data = response.json()   # returns a dictionary object with all the details of newly added object including Primary Key & auto updated values
-            print(data)
+            #print(data)
             # return data
             messages.success(request, "Details updated successfully with Name: " + str(data["cat_name"]) + ", Budget: " + str(data["budget"]))
             
@@ -189,7 +268,9 @@ def del_cat(request, cat_id):
 
     return redirect('/trackmyexp/getcategorylist')
 
-
+#-------------------------------------------------------
+#   Get all activities by a selected category 
+#=------------------------------------------------------
 def get_act_by_cat(request, cat_id):
     url = 'http://localhost:8085/finapi/category/' + str(cat_id) + '/activity/'
 
@@ -210,7 +291,7 @@ def get_act_by_cat(request, cat_id):
 
 #=============== REPORTS =====================
 def detailed_report(request):
-    url = 'http://localhost:8085/finapi/actbydate/'
+    url = 'http://localhost:8085/finapi/activityfilter/'
 
     if request.method == "POST":
         # get data from form

@@ -101,7 +101,7 @@
                             <div class="col-xl-6">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Donut Chart</h5>
+                                        <h5>Category wise total expense</h5>
                                     </div>
                                     <div class="card-block">
                                         <div id="morris-donut-chart" style="height:300px"></div>
@@ -257,28 +257,18 @@
 
     var graph = Morris.Donut({
         element: 'morris-donut-chart',
-        data: [{
-                value: 60,
-                label: 'Data 1'
-            },
+        data: [
+
+        {% for data in tot_cat_exp_data %}
             {
-                value: 20,
-                label: 'Data 1'
+                value: {{ data.total_expenditure}},
+                label: '{{ data.cat_name }}'
             },
-            {
-                value: 10,
-                label: 'Data 1'
-            },
-            {
-                value: 5,
-                label: 'Data 1'
-            }
+        {% endfor %}
+
         ],
         colors: [
-            '#1de9b6',
-            '#A389D4',
-            '#04a9f5',
-            '#1dc4e9',
+            '#1de9b6', '#A389D4', '#04a9f5', 'orange', '#1dc4e9', 'red'
         ],
         resize: true,
         formatter: function(x) {

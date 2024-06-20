@@ -69,7 +69,7 @@
                                                 <tbody>
                                                     {% for data in categorydata %}
                                                     <tr>
-                                                        <td><h6 class="m-0"><a href="{% url 'get-cat-by-cat' data.cat_id %}" title="Show all activities"> {{ data.cat_name }} </a></h6></td>
+                                                        <td><h6 class="m-0"><a href="{% url 'get-act-by-cat' data.cat_id %}" title="Show all activities"> {{ data.cat_name }} </a></h6></td>
                                                         <td><h6 class="m-0">{{ data.budget }}</h6></td>
                                                         <td>
                                                            {% comment %} <a href="{% url 'edit-cat' data.cat_id %}" class="btn btn-outline-primary btn-sm"><i class="feather icon-edit"></i></a>

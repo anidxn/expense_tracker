@@ -68,8 +68,8 @@
                                                        
                                                         <td>
                                                            
-                                                            <a href="#" class="label theme-bg2 text-white f-12" title="Edit this category"><i class="feather icon-edit-1"></i></a>
-                                                            <a href="#" class="label theme-bg text-white f-12"  title="Delete this category"><i class="feather icon-trash-2"></i></a></td>
+                                                            <a href="{% url 'edit-activity' data.ac_id %}" class="label theme-bg2 text-white f-12" title="Edit this category"><i class="feather icon-edit-1"></i></a>
+                                                            <a href="{% url 'delete-activity' data.ac_id %}" class="label theme-bg text-white f-12"  title="Delete this category"><i class="feather icon-trash-2"></i></a></td>
                                                         </td>
                                                     </tr>
                                                 {% endfor %}

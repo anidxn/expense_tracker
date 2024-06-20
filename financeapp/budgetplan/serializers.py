@@ -32,3 +32,14 @@ class ActivityCategoryLinkSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model=Activity
         fields="__all__"
+
+# ==============================================================================
+#   Serializer to calculate category wise expenditure
+# ==============================================================================
+class CategoryExpenditureSerializer(serializers.ModelSerializer):
+    # Add a custom field to the resultset
+    total_expenditure = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['cat_id', 'cat_name', 'budget', 'cat_tags', 'total_expenditure']
