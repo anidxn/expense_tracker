@@ -25,7 +25,7 @@
 {% endfor %}
 {% endif %}
 <!-- ========= end alert ============= -->
-                     
+{% load custom_filters %}
                         <!-- [ Main Content ] start -->
                         <div class="row">
                             <div class="col-sm-12">
@@ -76,7 +76,7 @@
                                                                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-calendar-alt"></i></span>
                                                                     </div>
                                                                     <input type="text" class="form-control" id="txtActDate" name="txtActDate"  tabindex="2"
-                                                                           accesskey="" placeholder="YYYY-MM-DD" value="{{ data.a_date }}" autocomplete="off" style="background-color:#FFF;cursor:pointer;" readonly="readonly">
+                                                                           accesskey="" placeholder="DD-MM-YYYY" value="{{ data.a_date|format_date_ddmmyyyy }}" autocomplete="off" style="background-color:#FFF;cursor:pointer;" readonly="readonly">
                                                                 </div>
                                                             </div>
                                                             

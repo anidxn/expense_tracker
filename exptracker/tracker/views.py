@@ -11,19 +11,31 @@ def home(request):
 
 
 def dashboard(request):
+    caturl = "http://localhost:8085/finapi/category/"
+    tagexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_tags'    # last 6 months
+    nameexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_name'    # last 6 months
     catexpurl = 'http://localhost:8085/finapi/categoryexpfilter/'
     
     try:
-        response = requests.get(catexpurl)
-        if response.status_code == 200:
-            data = response.json()
+        cat_response = requests.get(caturl)
+        gbar_response = requests.get(tagexpurl)
+        garea_response = requests.get(nameexpurl)
+        gdonut_response = requests.get(catexpurl)
+
+        if cat_response.status_code == 200 and gdonut_response.status_code == 200 and gbar_response.status_code == 200  and garea_response.status_code == 200 :
+            cat_data = cat_response.json()
+            bar_data = gbar_response.json()
+            area_data = garea_response.json()
+            donut_data = gdonut_response.json()
+
             #print(data)
-            return render(request, 'dashboard.html', {'tot_cat_exp_data': data})
+            return render(request, 'dashboard.html', {'categories': cat_data, 'tag_exp_monthwise' : bar_data, 'cname_exp_monthwise' : area_data, 'tot_cat_exp_data': donut_data})
         else:
             messages.warning(request, "Failed to retrieve data from the API.")
     except Exception as ex:
         print(ex)
         messages.warning(request, "An error occurred while fetching data.")
+    
     return render(request, 'dashboard.html')
 
 #------------------------------------
@@ -56,7 +68,7 @@ def activity_add(request):
             response = requests.post(url, json=payload)
             if response.status_code == 201:
                 data = response.json()
-                messages.success(request, f"Activity added successfully with ID: {data['ac_id']}")
+                messages.success(request, f"Activity added successfully ")  # with ID: {data['ac_id']}
             else:
                 messages.warning(request, "Failed to add activity.")
         except Exception as ex:
@@ -115,12 +127,17 @@ def edit_activity(request, ac_id):
         a_cat = request.POST.get('ddlCat')
         a_date = request.POST.get('txtActDate')
 
+        # Parse the date string to a datetime object
+        date_obj = datetime.strptime(a_date, '%d/%m/%Y')
+        # Format the datetime object to 'YYYY-MM-DD' format
+        formatted_date = date_obj.strftime('%Y-%m-%d')
+
         payload = {
             'ac_name': ac_name,
             'ac_desc': ac_desc,
             'expense': expense,
             'a_cat': a_cat,
-            'a_date': a_date
+            'a_date': formatted_date
         }
         try:
             response = requests.put(url, json=payload)
@@ -168,18 +185,20 @@ def del_activity(request, ac_id):
     return redirect('get-act')
 
 #----------------------------------------------------------------
-#                   SAVE category
+#                   Add new category (POST)
 #----------------------------------------------------------------
 def save_cat(request):
     url = 'http://localhost:8085/finapi/category/'
     if request.method == "POST":
         cname = request.POST.get('txtName')
         bplan = request.POST.get('txtBudget')
-
+        cattag = request.POST.get('ddlTag')
+        
         payload = {
             'cat_name': cname, 
-            'budget': bplan
-            }
+            'budget': bplan,
+            'cat_tags' : cattag
+        }
 
         try:
             response = requests.post(url, json=payload)
@@ -222,12 +241,12 @@ def edit_cat(request, cat_id):
         # get data from form
         cname = request.POST.get('txtName')
         bplan = request.POST.get('txtBudget')        
-        # cstatus = request.POST.get('rating') checkbox handling later
-       
+        cattag = request.POST.get('ddlTag')
+        
         payload = {
-            'cat_name': cname,
-            'budget': bplan
-            
+            'cat_name': cname, 
+            'budget': bplan,
+            'cat_tags' : cattag
         }
 
         response = requests.put(url, json = payload)  # send as JSON

@@ -34,7 +34,7 @@ class ActivityCategoryLinkSerializer(serializers.HyperlinkedModelSerializer):
         fields="__all__"
 
 # ==============================================================================
-#   Serializer to calculate category wise expenditure
+#   Serializer with added custom field to calculate category wise expenditure
 # ==============================================================================
 class CategoryExpenditureSerializer(serializers.ModelSerializer):
     # Add a custom field to the resultset
