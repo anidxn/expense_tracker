@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 import requests
 from datetime import datetime
+# for writing json to file
+import json
 
 # Create your views here.
 
@@ -332,6 +334,88 @@ def detailed_report(request):
             messages.warning(request, "An error occurred while fetching data. Please check logs.")
         
     return render(request, 'reports/detailed_report.html')
+
+
+# ==============================================================================
+#                       AUTHENTICATION
+# ==============================================================================
+
+def loginuser(request):
+    loginurl = 'http://localhost:8085/authapi/login/'
+    if request.method == "POST":
+        uname = request.POST.get('txtUname')
+        upass = request.POST.get('txtUpass')
+        
+        credentials = {
+            'username': uname, 
+            'password': upass
+        }
+
+        try:
+            response = requests.post(loginurl, json = credentials)  # response contains login token
+
+            if response.status_code == 200:
+                
+                # Extract the token from the response
+                # token =  response.json().get('token')
+                data = response.json()
+                token = data['token']
+
+                # Save token to a file
+                with open('token.json', 'w') as file:
+                    json.dump({'token': token}, file)
+
+                #set a msg
+                messages.success(request, "Login successfull")
+                # redirect to dashboard
+                return redirect('dashboard')
+            else:
+                messages.warning(request, "Failed to save data.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred during the save process.")
+
+    # render login page
+    return render(request, 'auth-signin.html')
+
+
+# ============== LOGOUT =================
+def logoutuser(request):
+
+    # Load token from file
+    with open('token.json', 'r') as file:
+        data = json.load(file)
+        token = data['token']
+
+    # Use the token for subsequent requests
+    headers = {
+        'Authorization': f'Token {token}'
+    }
+
+    logouturl = 'http://localhost:8085/authapi/logout/'
+
+    try:
+            response = requests.post(logouturl, headers = headers)  # response contains login token
+
+            if response.status_code == 200:
+                
+                # Extract the logout msg from the response
+                rmsg =  response.json().get('message')
+
+                #set a msg
+                messages.success(request, rmsg)
+                # redirect to login page
+                return render(request, 'auth-signin.html')
+                
+            else:
+                messages.warning(request, "Failed to save data.")
+    except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred during the save process.")
+            return redirect('dashboard')
+
+    
+
 
 
 
