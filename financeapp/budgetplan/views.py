@@ -15,6 +15,11 @@ from django.db.models import Sum, F
 from django.db.models.functions import TruncMonth
 from datetime import datetime, timedelta
 
+# ---------- for token authentication ----------
+# from rest_framework.authentication import TokenAuthentication #==> NOT required if DEFAULT Authentication class is SET GLOBALLY in Settings.py
+from rest_framework.permissions import IsAuthenticated
+
+
 from django.http import JsonResponse
 
 #   ***************************************************************************************
@@ -50,6 +55,10 @@ class CatViewSet(viewsets.ModelViewSet):
 #   - During GET operation we need the nested object details, but for other operations we don't need that
 #-------------------------------------------------------------------------------------
 class ActViewSet(viewsets.ModelViewSet):
+    # * * * * * RESTRICT USE of this Serializer class in absence of AUTH TOKEN * * * * *
+    # authentication_classes = [TokenAuthentication]  ==> Required ONLY if DEFAULT Authentication class is NOT SET GLOBALLY in Settings.py
+    permission_classes = [IsAuthenticated]
+
     queryset=Activity.objects.all()
     # serializer_class=ActSerializer
 

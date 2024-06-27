@@ -337,9 +337,51 @@ def detailed_report(request):
 
 
 # ==============================================================================
-#                       AUTHENTICATION
+#                       USER AUTHENTICATION
 # ==============================================================================
 
+def registeruser(request):
+    regurl = "http://localhost:8085/authapi/register/"
+
+    if request.method == "POST":
+        uname = request.POST.get('txtUname')
+        upass = request.POST.get('txtUpass')
+        uemail = request.POST.get('txtEmail')
+        
+        payload = {
+            'username': uname, 
+            'password': upass,
+            'email' : uemail
+        }
+
+        try:
+            response = requests.post(regurl, json = payload)  # response contains login token
+
+            if response.status_code == 201:
+                
+                # Extract the token from the response
+                # token =  response.json().get('token')  ORRR
+
+                # data = response.json()
+                # token = data['token']
+
+                # Save token to a file
+                # with open('token.json', 'w') as file:
+                #     json.dump({'token': token}, file)
+
+                #set a msg
+                messages.success(request, "User registration successfull")
+                # redirect to login page
+                return redirect('login-user')
+            else:
+                messages.warning(request, "Failed to save data.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred during the save process.")
+
+    return render(request, 'auth-signup.html')
+
+# ============ LOGIN ================
 def loginuser(request):
     loginurl = 'http://localhost:8085/authapi/login/'
     if request.method == "POST":
@@ -370,10 +412,10 @@ def loginuser(request):
                 # redirect to dashboard
                 return redirect('dashboard')
             else:
-                messages.warning(request, "Failed to save data.")
+                messages.warning(request, "Incorrect credential, please try again.")
         except Exception as ex:
             print(ex)
-            messages.warning(request, "An error occurred during the save process.")
+            messages.warning(request, "An error occurred during login. Please try again")
 
     # render login page
     return render(request, 'auth-signin.html')
@@ -400,19 +442,21 @@ def logoutuser(request):
             if response.status_code == 200:
                 
                 # Extract the logout msg from the response
-                rmsg =  response.json().get('message')
+                rmsg = response.json().get('message')
 
                 #set a msg
                 messages.success(request, rmsg)
                 # redirect to login page
-                return render(request, 'auth-signin.html')
+                # xxxx return render(request, 'auth-signin.html')  xxxx not directly render...form submission for login does not redirecthere
+                return redirect('login-user')
                 
             else:
-                messages.warning(request, "Failed to save data.")
+                messages.warning(request, "Opration failed.")
     except Exception as ex:
             print(ex)
-            messages.warning(request, "An error occurred during the save process.")
-            return redirect('dashboard')
+            messages.warning(request, "An error occurred during logout.")
+    
+    return redirect('dashboard')
 
     
 

@@ -21,6 +21,7 @@ urlpatterns = [
     #--------- Authentication -------------
     path('loginuser/', views.loginuser, name='login-user'),
     path('logoutuser/', views.logoutuser, name='logout-user'),
- 
+    path('registeruser/', views.registeruser, name='register-user')
+    
 
 ]

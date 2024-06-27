@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 # -------- for user registration -------
 from .serializers import UserSerializer
+from django.contrib.auth.models import User
 
 # --------- For user login ---------
 from rest_framework.authtoken.models import Token
@@ -14,6 +15,10 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 
 # ---------- for user logout -----------
+"""     NOT required if DEFAULT Authentication class is SET GLOBALLY in Settings.py
+from rest_framework.decorators import authentication_classes
+from rest_framework.authentication import TokenAuthentication
+"""
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 
@@ -29,7 +34,17 @@ def register_user(request):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            # generate token here (optional)
+            newuser = User.objects.get(username = serializer.data['username'])
+            tokenobj, _ = Token.objects.get_or_create(user=newuser)
+
+            # return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({
+                'payload' : serializer.data, 
+                'token' : str(tokenobj)
+                },
+                status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -79,11 +94,12 @@ http://localhost:8085/authapi/login/
 
 # ----------- LOGOUT ----------------
 @api_view(['POST'])
+# @authentication_classes([TokenAuthentication])  =>=>=> Not required if DEFAULT Authentication class is SET GLOBALLY in Settings.py
 @permission_classes([IsAuthenticated])
 def user_logout(request):
     if request.method == 'POST':
         try:
-            # print("Supplied token for logout - "+ request.user.auth_token)
+            print("Supplied token for logout - "+ request.user.auth_token)
             # Delete the user's token to logout
             request.user.auth_token.delete()
             print("Logout success")
