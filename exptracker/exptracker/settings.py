@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$5a(1kxd!^jhs86#b28*qnie+$sw393)#++x$e#_iox*2)1nym'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True    # * * * * * Ensure this is False in production
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []  # 'yourdomain.com'
 
 
 # Application definition
@@ -34,16 +34,16 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
+    'django.contrib.sessions',      # used for storing token
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tracker'
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',        # for Token storage 
+    'django.contrib.sessions.middleware.SessionMiddleware', # for Token storage 
+    'django.middleware.common.CommonMiddleware',            # for Token storage 
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -125,3 +125,24 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Session settings =============================
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_COOKIE_SECURE = False  # Ensures the cookie is only sent over HTTPS
+SESSION_COOKIE_HTTPONLY = False  # Ensures the cookie is not accessible via JavaScript
+SESSION_COOKIE_AGE = 1209600  # 2 weeks (Default), in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Optional: To use database-backed sessions (default)
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+"""
+Other options for SESSION_ENGINE
+- 'django.contrib.sessions.backends.cache' for caching session data.
+- 'django.contrib.sessions.backends.cached_db' for a combination of database and cache.
+- 'django.contrib.sessions.backends.file' for file-based sessions.
+- 'django.contrib.sessions.backends.signed_cookies' for cookie-based sessions.
+"""
+
+

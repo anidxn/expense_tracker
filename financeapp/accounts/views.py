@@ -76,9 +76,18 @@ def user_login(request):
         if not user: # login by username"""
         user = authenticate(username=username, password=password)
 
-        if user:
+        if user:    # login success
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_200_OK)
+            serializer = UserSerializer(data=user)
+
+            # print(serializer.initial_data.username)
+            # print(serializer.initial_data.id)
+            # print( UserSerializer(user, context=self.get_serializer_context()).data)  xxxxxxx
+
+            return Response({
+                'act_uname' : serializer.initial_data.username, 
+                'token': token.key
+                }, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -99,10 +108,10 @@ http://localhost:8085/authapi/login/
 def user_logout(request):
     if request.method == 'POST':
         try:
-            print("Supplied token for logout - "+ request.user.auth_token)
+            #print("Supplied token for logout - "+ request.user.auth_token)
             # Delete the user's token to logout
             request.user.auth_token.delete()
-            print("Logout success")
+            
             return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

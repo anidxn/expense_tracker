@@ -31,7 +31,9 @@ def dashboard(request):
             donut_data = gdonut_response.json()
 
             #print(data)
-            return render(request, 'dashboard.html', {'categories': cat_data, 'tag_exp_monthwise' : bar_data, 'cname_exp_monthwise' : area_data, 'tot_cat_exp_data': donut_data})
+            # get username from session to display 
+            au_uname = request.session.get('active_uname', None)
+            return render(request, 'dashboard.html', {'au_uname': au_uname, 'categories': cat_data, 'tag_exp_monthwise' : bar_data, 'cname_exp_monthwise' : area_data, 'tot_cat_exp_data': donut_data})
         else:
             messages.warning(request, "Failed to retrieve data from the API.")
     except Exception as ex:
@@ -45,75 +47,103 @@ def dashboard(request):
 #------------------------------------
 def activity_add(request):
     url = 'http://localhost:8085/finapi/activity/'
+
+    au_uname = request.session.get('active_uname', None)
+
+    if au_uname:
     
-    if request.method == "POST":
-        ac_name = request.POST.get('txtActName')
-        ac_desc = request.POST.get('txtAcDesc')
-        expense = float( request.POST.get('txtExpense'))
-        a_cat = request.POST.get('ddlCat')      # URL to category
-        a_date = request.POST.get('txtActDate')
+        if request.method == "POST":
+            ac_name = request.POST.get('txtActName')
+            ac_desc = request.POST.get('txtAcDesc')
+            expense = float( request.POST.get('txtExpense'))
+            a_cat = request.POST.get('ddlCat')      # URL to category
+            a_date = request.POST.get('txtActDate')
 
-        # Step 1: Parse the date string to a datetime object
-        date_obj = datetime.strptime(a_date, '%d/%m/%Y')
-        # Step 2: Format the datetime object to 'YYYY-MM-DD' format
-        formatted_date = date_obj.strftime('%Y-%m-%d')
+            # Step 1: Parse the date string to a datetime object
+            date_obj = datetime.strptime(a_date, '%d/%m/%Y')
+            # Step 2: Format the datetime object to 'YYYY-MM-DD' format
+            formatted_date = date_obj.strftime('%Y-%m-%d')
 
-        payload = {
-            'ac_name': ac_name,
-            'ac_desc': ac_desc,
-            'expense': expense,
-            'a_cat': a_cat,
-            'a_date': formatted_date
-        }
+            payload = {
+                'ac_name': ac_name,
+                'ac_desc': ac_desc,
+                'expense': expense,
+                'a_cat': a_cat,
+                'a_date': formatted_date
+            }
+            
+            try:
+                response = requests.post(url, json=payload)
+                if response.status_code == 201:
+                    data = response.json()
+                    messages.success(request, f"Activity added successfully ")  # with ID: {data['ac_id']}
+                else:
+                    messages.warning(request, "Failed to add activity.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred during the save process.")
+            return redirect('add-activity')
         
-        try:
-            response = requests.post(url, json=payload)
-            if response.status_code == 201:
-                data = response.json()
-                messages.success(request, f"Activity added successfully ")  # with ID: {data['ac_id']}
-            else:
-                messages.warning(request, "Failed to add activity.")
-        except Exception as ex:
-            print(ex)
-            messages.warning(request, "An error occurred during the save process.")
-        return redirect('add-activity')
-    
-    else:
-        # Fetch categories for the dropdown
-        try:
-            categories_url = 'http://localhost:8085/finapi/category/'
-            categories_response = requests.get(categories_url)
-            if categories_response.status_code == 200:
-                categories = categories_response.json()
-            else:
+        else:
+            # Fetch categories for the dropdown
+            try:
+                categories_url = 'http://localhost:8085/finapi/category/'
+                categories_response = requests.get(categories_url)
+                if categories_response.status_code == 200:
+                    categories = categories_response.json()
+                else:
+                    categories = []
+                    messages.warning(request, "Failed to retrieve categories.")
+            except Exception as ex:
+                print(ex)
                 categories = []
-                messages.warning(request, "Failed to retrieve categories.")
-        except Exception as ex:
-            print(ex)
-            categories = []
-            messages.warning(request, "An error occurred while fetching categories.")
+                messages.warning(request, "An error occurred while fetching categories.")
 
-        return render(request, 'activity-add.html', {'categories': categories})
+            
+            return render(request, 'activity-add.html', {'au_uname': au_uname, 'categories': categories})
+    else:
+        messages.warning(request, "You need to login to access this functionality.")
+        return redirect('login-user')
 
 #----------------------------------------------------------------
 #                   get list of activities
 #----------------------------------------------------------------
 
 def getactdata(request):
-    url = 'http://localhost:8085/finapi/activity/'
-    
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            #print(data)
-            return render(request, 'activities.html', {'acdata': data})
-        else:
-            messages.warning(request, "Failed to retrieve data from the API.")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "An error occurred while fetching data.")
-    return render(request, 'index.html')
+    # Load token from session
+    token = request.session.get('authToken', None)
+
+    """ Option 2: from a filefrom file
+    with open('token.json', 'r') as file:
+        data = json.load(file)
+        token = data['token']
+    """
+
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
+
+        url = 'http://localhost:8085/finapi/activity/'
+        
+        try:
+            response = requests.get(url, headers = headers)
+            if response.status_code == 200:
+                data = response.json()
+                #print(data)
+                au_uname = request.session.get('active_uname', None)  # Get username for display
+
+                return render(request, 'activities.html', {'acdata': data, 'au_uname': au_uname})
+            else:
+                messages.warning(request, "Failed to retrieve data from the API.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred while fetching data.")
+        return render(request, 'dashboard')
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
 
 #----------------------------------------------------------------
 #                   EDit an Activity
@@ -382,6 +412,8 @@ def registeruser(request):
     return render(request, 'auth-signup.html')
 
 # ============ LOGIN ================
+# @csrf_exempt  ??????
+
 def loginuser(request):
     loginurl = 'http://localhost:8085/authapi/login/'
     if request.method == "POST":
@@ -403,9 +435,16 @@ def loginuser(request):
                 data = response.json()
                 token = data['token']
 
-                # Save token to a file
+                # Save the token for future API calls -
+                # Option 1: in session
+                request.session['authToken'] = token
+                request.session['active_uname'] = data['act_uname']
+                
+
+                """ # Option 2: in a file
                 with open('token.json', 'w') as file:
                     json.dump({'token': token}, file)
+                """
 
                 #set a msg
                 messages.success(request, "Login successfull")
@@ -424,25 +463,38 @@ def loginuser(request):
 # ============== LOGOUT =================
 def logoutuser(request):
 
-    # Load token from file
+    # Load token 
+    # Option 1: from session
+    token = request.session.get('authToken', None)
+
+    """ Option 2: from a filefrom file
     with open('token.json', 'r') as file:
         data = json.load(file)
         token = data['token']
+    """
 
-    # Use the token for subsequent requests
-    headers = {
-        'Authorization': f'Token {token}'
-    }
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
 
-    logouturl = 'http://localhost:8085/authapi/logout/'
-
-    try:
+        logouturl = 'http://localhost:8085/authapi/logout/'
+        
+        try:
             response = requests.post(logouturl, headers = headers)  # response contains login token
 
             if response.status_code == 200:
                 
                 # Extract the logout msg from the response
                 rmsg = response.json().get('message')
+
+                # Clear token & username from SESSION
+                try:
+                    del request.session['authToken']
+                    del request.session['active_uname']
+                except KeyError:
+                    pass
 
                 #set a msg
                 messages.success(request, rmsg)
@@ -451,10 +503,14 @@ def logoutuser(request):
                 return redirect('login-user')
                 
             else:
-                messages.warning(request, "Opration failed.")
-    except Exception as ex:
+                messages.warning(request, "Opration failed.") 
+                # redirect to dash
+        except Exception as ex:
             print(ex)
             messages.warning(request, "An error occurred during logout.")
+    else:
+        messages.warning(request, "User not authenticated. Please login")
+        return redirect('login-user')
     
     return redirect('dashboard')
 
