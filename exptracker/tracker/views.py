@@ -82,7 +82,7 @@ def activity_add(request):
             except Exception as ex:
                 print(ex)
                 messages.warning(request, "An error occurred during the save process.")
-            return redirect('add-activity')
+            return redirect('add-activity') # render through redirect to lead the categories by API CAlls
         
         else:
             # Fetch categories for the dropdown
@@ -128,10 +128,11 @@ def getactdata(request):
         url = 'http://localhost:8085/finapi/activity/'
         
         try:
-            response = requests.get(url, headers = headers)
+            response = requests.get(url, headers = headers) # pass TOKEN as header
             if response.status_code == 200:
+                # convert the response to JSON
                 data = response.json()
-                #print(data)
+                
                 au_uname = request.session.get('active_uname', None)  # Get username for display
 
                 return render(request, 'activities.html', {'acdata': data, 'au_uname': au_uname})
@@ -149,56 +150,73 @@ def getactdata(request):
 #                   EDit an Activity
 #----------------------------------------------------------------
 def edit_activity(request, ac_id):
-    url = f'http://localhost:8085/finapi/activity/{ac_id}/'
-    categories_url = 'http://localhost:8085/finapi/category/'
+    # Load token from session
+    token = request.session.get('authToken', None)
 
-    if request.method == "POST":
-        ac_name = request.POST.get('txtActName')
-        ac_desc = request.POST.get('txtAcDesc')
-        expense = request.POST.get('txtExpense')
-        a_cat = request.POST.get('ddlCat')
-        a_date = request.POST.get('txtActDate')
-
-        # Parse the date string to a datetime object
-        date_obj = datetime.strptime(a_date, '%d/%m/%Y')
-        # Format the datetime object to 'YYYY-MM-DD' format
-        formatted_date = date_obj.strftime('%Y-%m-%d')
-
-        payload = {
-            'ac_name': ac_name,
-            'ac_desc': ac_desc,
-            'expense': expense,
-            'a_cat': a_cat,
-            'a_date': formatted_date
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
         }
-        try:
-            response = requests.put(url, json=payload)
-            if response.status_code == 200:
-                messages.success(request, "Activity updated successfully.")
-                return redirect('get-act')
-            else:
-                messages.warning(request, "Failed to update activity.")
-        except Exception as ex:
-            print(ex)
-            messages.warning(request, "An error occurred during the update process.")
 
-    try:
-        activity_response = requests.get(url)
-        categories_response = requests.get(categories_url)
-        if activity_response.status_code == 200 and categories_response.status_code == 200:
-            activity_data = activity_response.json()
-            categories = categories_response.json()
-            return render(request, 'activity_edit.html', {'activity_data': activity_data, 'categories': categories})
-        else:
-            messages.warning(request, "Failed to retrieve activity or categories.")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "An error occurred while fetching data.")
+        url = f'http://localhost:8085/finapi/activity/{ac_id}/'
+        categories_url = 'http://localhost:8085/finapi/category/'
 
-    return redirect('get-act')
+        if request.method == "POST":    # UPDATE activity
+            ac_name = request.POST.get('txtActName')
+            ac_desc = request.POST.get('txtAcDesc')
+            expense = request.POST.get('txtExpense')
+            a_cat = request.POST.get('ddlCat')
+            a_date = request.POST.get('txtActDate')
+
+            # Parse the date string to a datetime object
+            date_obj = datetime.strptime(a_date, '%d/%m/%Y')
+            # Format the datetime object to 'YYYY-MM-DD' format
+            formatted_date = date_obj.strftime('%Y-%m-%d')
+
+            payload = {
+                'ac_name': ac_name,
+                'ac_desc': ac_desc,
+                'expense': expense,
+                'a_cat': a_cat,
+                'a_date': formatted_date
+            }
+            try:
+                response = requests.put(url, json=payload, headers = headers) # pass Token with headers
+                if response.status_code == 200:
+                    messages.success(request, "Activity updated successfully.")
+                    return redirect('get-act')
+                else:
+                    messages.warning(request, "Failed to update activity.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred during the update process.")
+        
+        else:   # Fetch data to load in form
+
+            try:
+                activity_response = requests.get(url, headers = headers)    # pass token as header
+                categories_response = requests.get(categories_url, headers = headers)
+
+                if activity_response.status_code == 200 and categories_response.status_code == 200:
+                    # convert the response to JSON
+                    activity_data = activity_response.json()
+                    categories = categories_response.json()
+
+                    return render(request, 'activity_edit.html', {'activity_data': activity_data, 'categories': categories})
+                else:
+                    messages.warning(request, "Failed to retrieve activity or categories.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred while fetching data.")
+
+        return redirect('get-act')
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
 
 #----------------------------------------------------------------
-#                   DELTE Activity
+#                   DELETE Activity
 #----------------------------------------------------------------
 def del_activity(request, ac_id):
     url = f'http://127.0.0.1:8085/finapi/activity/{ac_id}/'

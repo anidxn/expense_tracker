@@ -27,6 +27,10 @@ from django.http import JsonResponse
 #   default create(),retrieve(),list(),update(),partialupdate(),destroy() actions
 #   ***************************************************************************************
 class CatViewSet(viewsets.ModelViewSet):
+    # * * * * * RESTRICT USE of this View class in absence of AUTH TOKEN * * * * *
+    # authentication_classes = [TokenAuthentication]  ==> Required ONLY if DEFAULT Authentication class is NOT SET GLOBALLY in Settings.py
+    permission_classes = [IsAuthenticated]
+
     #queryset and serializer_class is an inbuilt data object so don't change the name
     queryset=Category.objects.all()
     serializer_class=CatSerializer
@@ -55,7 +59,7 @@ class CatViewSet(viewsets.ModelViewSet):
 #   - During GET operation we need the nested object details, but for other operations we don't need that
 #-------------------------------------------------------------------------------------
 class ActViewSet(viewsets.ModelViewSet):
-    # * * * * * RESTRICT USE of this Serializer class in absence of AUTH TOKEN * * * * *
+    # * * * * * RESTRICT USE of this View class in absence of AUTH TOKEN * * * * *
     # authentication_classes = [TokenAuthentication]  ==> Required ONLY if DEFAULT Authentication class is NOT SET GLOBALLY in Settings.py
     permission_classes = [IsAuthenticated]
 
