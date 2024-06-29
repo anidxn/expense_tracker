@@ -13,44 +13,63 @@ def home(request):
 
 
 def dashboard(request):
-    caturl = "http://localhost:8085/finapi/category/"
-    tagexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_tags'    # last 6 months
-    nameexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_name'    # last 6 months
-    catexpurl = 'http://localhost:8085/finapi/categoryexpfilter/'
+    # Load token from session
+    token = request.session.get('authToken', None)
     
-    try:
-        cat_response = requests.get(caturl)
-        gbar_response = requests.get(tagexpurl)
-        garea_response = requests.get(nameexpurl)
-        gdonut_response = requests.get(catexpurl)
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
 
-        if cat_response.status_code == 200 and gdonut_response.status_code == 200 and gbar_response.status_code == 200  and garea_response.status_code == 200 :
-            cat_data = cat_response.json()
-            bar_data = gbar_response.json()
-            area_data = garea_response.json()
-            donut_data = gdonut_response.json()
+        caturl = "http://localhost:8085/finapi/category/"
+        tagexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_tags'    # last 6 months
+        nameexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_name'    # last 6 months
+        catexpurl = 'http://localhost:8085/finapi/categoryexpfilter/'
+        
+        try:
+            cat_response = requests.get(caturl, headers = headers) # pass TOKEN as header
+            gbar_response = requests.get(tagexpurl)
+            garea_response = requests.get(nameexpurl)
+            gdonut_response = requests.get(catexpurl)
 
-            #print(data)
-            # get username from session to display 
-            au_uname = request.session.get('active_uname', None)
-            return render(request, 'dashboard.html', {'au_uname': au_uname, 'categories': cat_data, 'tag_exp_monthwise' : bar_data, 'cname_exp_monthwise' : area_data, 'tot_cat_exp_data': donut_data})
-        else:
-            messages.warning(request, "Failed to retrieve data from the API.")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "An error occurred while fetching data.")
-    
-    return render(request, 'dashboard.html')
+            if cat_response.status_code == 200 and gdonut_response.status_code == 200 and gbar_response.status_code == 200  and garea_response.status_code == 200 :
+                cat_data = cat_response.json()
+                bar_data = gbar_response.json()
+                area_data = garea_response.json()
+                donut_data = gdonut_response.json()
+
+                #print(data)
+                # get username from session to display 
+                au_uname = request.session.get('active_uname', None)
+                return render(request, 'dashboard.html', {'au_uname': au_uname, 'categories': cat_data, 'tag_exp_monthwise' : bar_data, 'cname_exp_monthwise' : area_data, 'tot_cat_exp_data': donut_data})
+            else:
+                messages.warning(request, "Failed to retrieve data from the API.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred while fetching data.")
+        
+        return render(request, 'dashboard.html')
+
+    # Session missing
+    else:
+        messages.warning(request, "You need to login to access this functionality.")
+        return redirect('login-user')
 
 #------------------------------------
 #        Add new activity 
 #------------------------------------
 def activity_add(request):
-    url = 'http://localhost:8085/finapi/activity/'
+    # Load token from session
+    token = request.session.get('authToken', None)
 
-    au_uname = request.session.get('active_uname', None)
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
 
-    if au_uname:
+        url = 'http://localhost:8085/finapi/activity/'
     
         if request.method == "POST":
             ac_name = request.POST.get('txtActName')
@@ -73,7 +92,7 @@ def activity_add(request):
             }
             
             try:
-                response = requests.post(url, json=payload)
+                response = requests.post(url, json=payload, headers = headers) # pass TOKEN as header
                 if response.status_code == 201:
                     data = response.json()
                     messages.success(request, f"Activity added successfully ")  # with ID: {data['ac_id']}
@@ -88,7 +107,7 @@ def activity_add(request):
             # Fetch categories for the dropdown
             try:
                 categories_url = 'http://localhost:8085/finapi/category/'
-                categories_response = requests.get(categories_url)
+                categories_response = requests.get(categories_url, headers = headers) # pass TOKEN as header
                 if categories_response.status_code == 200:
                     categories = categories_response.json()
                 else:
@@ -98,9 +117,12 @@ def activity_add(request):
                 print(ex)
                 categories = []
                 messages.warning(request, "An error occurred while fetching categories.")
+            # get username before render
+            au_uname = request.session.get('active_uname', None)
 
-            
             return render(request, 'activity-add.html', {'au_uname': au_uname, 'categories': categories})
+    
+    # Session missing
     else:
         messages.warning(request, "You need to login to access this functionality.")
         return redirect('login-user')
@@ -129,19 +151,23 @@ def getactdata(request):
         
         try:
             response = requests.get(url, headers = headers) # pass TOKEN as header
+            
             if response.status_code == 200:
                 # convert the response to JSON
                 data = response.json()
                 
                 au_uname = request.session.get('active_uname', None)  # Get username for display
-
                 return render(request, 'activities.html', {'acdata': data, 'au_uname': au_uname})
+            
             else:
                 messages.warning(request, "Failed to retrieve data from the API.")
+        
         except Exception as ex:
             print(ex)
             messages.warning(request, "An error occurred while fetching data.")
-        return render(request, 'dashboard')
+            return redirect('dashboard')
+    
+    # Session missing
     else:
         messages.warning(request, "You are not authorized to access this page. Please login")
         return redirect('login-user')
@@ -183,14 +209,18 @@ def edit_activity(request, ac_id):
             }
             try:
                 response = requests.put(url, json=payload, headers = headers) # pass Token with headers
+                
                 if response.status_code == 200:
+                    # data = response.json()   # returns a dictionary object with all the details of newly added object including Primary Key & auto updated values
                     messages.success(request, "Activity updated successfully.")
-                    return redirect('get-act')
+                
                 else:
                     messages.warning(request, "Failed to update activity.")
             except Exception as ex:
                 print(ex)
-                messages.warning(request, "An error occurred during the update process.")
+                messages.warning(request, "An error occurred during the update process, check logs for details.")
+            
+            return redirect('get-act')
         
         else:   # Fetch data to load in form
 
@@ -203,12 +233,15 @@ def edit_activity(request, ac_id):
                     activity_data = activity_response.json()
                     categories = categories_response.json()
 
-                    return render(request, 'activity_edit.html', {'activity_data': activity_data, 'categories': categories})
+                    # get username before render
+                    au_uname = request.session.get('active_uname', None)
+
+                    return render(request, 'activity_edit.html', {'activity_data': activity_data, 'categories': categories, 'au_uname': au_uname})
                 else:
                     messages.warning(request, "Failed to retrieve activity or categories.")
             except Exception as ex:
                 print(ex)
-                messages.warning(request, "An error occurred while fetching data.")
+                messages.warning(request, "An error occurred while fetching data, please check log.")
 
         return redirect('get-act')
     else:
@@ -219,123 +252,211 @@ def edit_activity(request, ac_id):
 #                   DELETE Activity
 #----------------------------------------------------------------
 def del_activity(request, ac_id):
-    url = f'http://127.0.0.1:8085/finapi/activity/{ac_id}/'
+    # Load token from session
+    token = request.session.get('authToken', None)
 
-    try:
-        response = requests.delete(url)
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
+
+        url = f'http://127.0.0.1:8085/finapi/activity/{ac_id}/'
+
+        try:
+            response = requests.delete(url, headers = headers)  
+        
+            if response.status_code == 204:
+                messages.success(request, "Activity deleted successfully.")
+            else:
+                messages.warning(request, "Failed to delete activity. Remote server did not respond properly.")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred during the delete process. Check logs for details.")
+
+        return redirect('get-act')
     
-        if response.status_code == 204:
-            messages.success(request, "Activity deleted successfully.")
-        else:
-            messages.warning(request, "Failed to delete activity. Remote server did not respond properly.")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "An error occurred during the delete process. Check logs for details.")
-
-    return redirect('get-act')
+    # Session missing
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
 
 #----------------------------------------------------------------
 #                   Add new category (POST)
 #----------------------------------------------------------------
 def save_cat(request):
-    url = 'http://localhost:8085/finapi/category/'
-    if request.method == "POST":
-        cname = request.POST.get('txtName')
-        bplan = request.POST.get('txtBudget')
-        cattag = request.POST.get('ddlTag')
-        
-        payload = {
-            'cat_name': cname, 
-            'budget': bplan,
-            'cat_tags' : cattag
+
+    # Load token from session
+    token = request.session.get('authToken', None)
+    
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
         }
 
-        try:
-            response = requests.post(url, json=payload)
-            if response.status_code == 201:
-                data = response.json()
-                messages.success(request, f"Details stored successfully with ID: {data['cat_id']} and Name: {data['cat_name']}")
-            else:
-                messages.warning(request, "Failed to save data.")
-        except Exception as ex:
-            print(ex)
-            messages.warning(request, "An error occurred during the save process.")
-    return render(request, 'category_add.html')
+        url = 'http://localhost:8085/finapi/category/'
+        if request.method == "POST":
+            cname = request.POST.get('txtName')
+            bplan = request.POST.get('txtBudget')
+            cattag = request.POST.get('ddlTag')
+            
+            payload = {
+                'cat_name': cname, 
+                'budget': bplan,
+                'cat_tags' : cattag
+            }
+
+            try:
+                response = requests.post(url, json=payload, headers = headers) # pass TOKEN as header
+                if response.status_code == 201:
+                    data = response.json()
+                    messages.success(request, "Category details stored successfully")
+
+                else:
+                    messages.warning(request, "Failed to save data.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred during the save process.")
+        # get username before render
+        au_uname = request.session.get('active_uname', None)
+
+        return render(request, 'category_add.html', {'au_uname': au_uname})
+    
+    # Session missing
+    else:
+        messages.warning(request, "You need to login to access this functionality.")
+        return redirect('login-user')
 
 #----------------------------------------------------------------
 #       get category list
 #----------------------------------------------------------------
 def get_catlist(request):
-    url = 'http://localhost:8085/finapi/category/'
+    # Load token from session
+    token = request.session.get('authToken', None)
+
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
+
+        url = 'http://localhost:8085/finapi/category/'
+        
+        try:
+            response = requests.get(url, headers = headers) # pass TOKEN as header
+
+            if response.status_code == 200:
+                # convert the response to JSON
+                data = response.json()
+                
+                au_uname = request.session.get('active_uname', None)  # Get username for display
+                return render(request, 'category.html', {'categorydata': data , 'au_uname': au_uname})
+            
+            else:
+                messages.warning(request, "Failed to retrieve data from the API.")
+        
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "An error occurred while fetching data.")
+            return redirect('/trackmyexp/dash') #***********
     
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            #print(data)
-            return render(request, 'category.html', {'categorydata': data})
-        else:
-            messages.warning(request, "Failed to retrieve data from the API.")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "An error occurred while fetching data.")
-    return redirect('/trackmyexp/dash') #***********
+    # Session missing
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
 
 # ---------------------------------------------------
 #       EDIT category
 # ---------------------------------------------------
 def edit_cat(request, cat_id):
-    url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'  # must teminate with /
 
-    if request.method == "POST":
-        # get data from form
-        cname = request.POST.get('txtName')
-        bplan = request.POST.get('txtBudget')        
-        cattag = request.POST.get('ddlTag')
-        
-        payload = {
-            'cat_name': cname, 
-            'budget': bplan,
-            'cat_tags' : cattag
+    # Load token from session
+    token = request.session.get('authToken', None)
+
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
         }
 
-        response = requests.put(url, json = payload)  # send as JSON
+        url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'  # must teminate with /
 
-        if response.status_code == 200:   # response 200
-            data = response.json()   # returns a dictionary object with all the details of newly added object including Primary Key & auto updated values
-            #print(data)
-            # return data
-            messages.success(request, "Details updated successfully with Name: " + str(data["cat_name"]) + ", Budget: " + str(data["budget"]))
+        if request.method == "POST":
+            # get data from form
+            cname = request.POST.get('txtName')
+            bplan = request.POST.get('txtBudget')        
+            cattag = request.POST.get('ddlTag')
             
-        else:
-            messages.warning(request, "Some error occured during update, check logs for details")
-            #return None
+            payload = {
+                'cat_name': cname, 
+                'budget': bplan,
+                'cat_tags' : cattag
+            }
 
-        return redirect('/trackmyexp/getcategorylist')  # redirect to view all
+            try:
+                response = requests.put(url, json = payload, headers = headers) # pass Token with headers
 
-    else:  # * * * * * * * get details of the selected company by API Call  * * * * * * * 
+                if response.status_code == 200:   # response 200
+                    data = response.json()   # returns a dictionary object with all the details of newly added object including Primary Key & auto updated values
+                    messages.success(request, "Details updated successfully with Name: " + str(data["cat_name"]) + ", Budget: " + str(data["budget"]))
+                    
+                else:
+                    messages.warning(request, "Failed to update activity.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred during the update process, check logs for details.")
+            
 
-        response = requests.get(url) #.json()
-        if response.status_code == 200:
-            data = response.json()
-            return render(request, 'category_edit.html', {'categorydata' : data})
+            return redirect('/trackmyexp/getcategorylist')  # redirect to view all
+
+        else:  # * * * * * * * get details of the selected company by API Call  * * * * * * * 
+            try:
+                response = requests.get(url, headers = headers)  #.json()
+                if response.status_code == 200:
+                    data = response.json()
+
+                    # get username before render
+                    au_uname = request.session.get('active_uname', None)
+                    return render(request, 'category_edit.html', {'categorydata' : data, 'au_uname': au_uname})
+                else:
+                    messages.warning(request, "Failed to retrieve category details.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred while fetching data, please check log.")
         
-# --------------- DELETE (One)----------------------
+#----------------------------------------------------------------
+#                   DELETE Category
+#----------------------------------------------------------------
 def del_cat(request, cat_id):
-    url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'
+    # Load token from session
+    token = request.session.get('authToken', None)
 
-    try:
-        response = requests.delete(url)
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
     
-        if response.status_code == 204:
-            messages.success(request, "Details deleted successfully")
-        else:
-            messages.warning(request, "Failed to delete resource..remote server did not respond properly")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "Some error occured during delete, check logs for details")
+        url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'
 
-    return redirect('/trackmyexp/getcategorylist')
+        try:
+            response = requests.delete(url, headers = headers)  
+        
+            if response.status_code == 204:
+                messages.success(request, "Details deleted successfully")
+            else:
+                messages.warning(request, "Failed to delete resource..remote server did not respond properly")
+        except Exception as ex:
+            print(ex)
+            messages.warning(request, "Some error occured during delete, check logs for details")
+
+        return redirect('/trackmyexp/getcategorylist')
+    
+    # Session missing
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
 
 #-------------------------------------------------------
 #   Get all activities by a selected category 
