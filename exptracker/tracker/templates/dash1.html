@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title%} Home {% endblock title%}
+{% block title%} Dashboard {% endblock title%}
 
 {% block body%}
 
@@ -172,7 +172,9 @@
         </div>
     </div>
 </div>
+{{tot_cat_exp_data}}
 
+{{cname_exp_monthwise}}
 
 {% endblock body%}
 
@@ -181,6 +183,7 @@
 
 
 <script>
+   
     $(document).ready(function() {
         setTimeout(function() {
             // [ bar-simple ] chart start
@@ -188,14 +191,35 @@
                 element: 'morris-bar-chart',
                 data: [
 
-                {% for data in tag_exp_monthwise %}
+                
                     {
-                        y: '{{ data.month_name}}',
-                        a: {{ data.expenditures.Must}},
-                        b: {{ data.expenditures.Need}},
-                        c: {{ data.expenditures.Want}}
+                        y: 'March',
+                        a: 0,
+                        b: 0,
+                        c: 200.0
                     },
-                {% endfor %}
+                
+                    {
+                        y: 'April',
+                        a: 715.0,
+                        b: 915.0,
+                        c: 1500.0
+                    },
+                
+                    {
+                        y: 'May',
+                        a: 0,
+                        b: 350.0,
+                        c: 0
+                    },
+                
+                    {
+                        y: 'June',
+                        a: 50.0,
+                        b: 0,
+                        c: 2550.0
+                    },
+                
 
                 ],
                 xkey: 'y',
@@ -214,12 +238,27 @@
                 element: 'morris-donut-chart',
                 data: [
 
-                {% for data in tot_cat_exp_data %}
+                
                     {
-                        value: {{ data.total_expenditure}},
-                        label: '{{ data.cat_name }}'
+                        value: 765.00,
+                        label: 'groceries'
                     },
-                {% endfor %}
+                
+                    {
+                        value: 4250.00,
+                        label: 'Travel'
+                    },
+                
+                    {
+                        value: 1265.00,
+                        label: 'Books'
+                    },
+                
+                    {
+                        value: 0.0,
+                        label: 'Utility bills'
+                    },
+                
 
                 ],
                 colors: [
@@ -232,80 +271,88 @@
             });  
 
             // [ Donut-chart ] end
-            /*
-            Morris.Line({
-                element: 'morris-line-chart',
-                data: [{
-                        y: '2006',
-                        a: 20,
-                        b: 10,
-                        c: 9
-                    },
-                    {
-                        y: '2007',
-                        a: 55,
-                        b: 45
-                    },
-                    {
-                        y: '2008',
-                        a: 45,
-                        b: 35
-                    },
-                    {
-                        y: '2009',
-                        a: 75,
-                        b: 65
-                    },
-                    {
-                        y: '2010',
-                        a: 50,
-                        b: 40
-                    },
-                    {
-                        y: '2011',
-                        a: 75,
-                        b: 65
-                    },
-                    {
-                        y: '2012',
-                        a: 100,
-                        b: 90
-                    }
-                ],
-                xkey: 'y',
-                redraw: true,
-                resize: true,
-                smooth: false,
-                ykeys: ['a', 'b'],
-                hideHover: 'auto',
-                responsive:true,
-                labels: ['Series A', 'Series B'],
-                lineColors: ['#1de9b6', '#04a9f5']
-            });*/
+            
             
            Morris.Area({
                 element: 'morris-area-curved-chart',
                 data: [
-                {% for data in cname_exp_monthwise %}
+                
                 {
-                    period: '{{ data.month}}',
-                    {% for category, expenditure in data.expenditures.items %}
-                    '{{ category }}': {{expenditure}},
-                    {% endfor %}
+                    period: '2024-03',
+                    
+                    Books: 0,
+                    
+                    Travel: 200.0,
+                    
+                    'Utility bills': 0,
+                    
+                    groceries: 0,
+                    
                 },
-                {% endfor %}
+                
+                {
+                    period: '2024-04',
+                    
+                    Books: 915.0,
+                    
+                    Travel: 1500.0,
+                    
+                    'Utility bills': 0,
+                    
+                    groceries: 715.0,
+                    
+                },
+                
+                {
+                    period: '2024-05',
+                    
+                    Books: 350.0,
+                    
+                    Travel: 0,
+                    
+                    'Utility bills': 0,
+                    
+                    groceries: 0,
+                    
+                },
+                
+                {
+                    period: '2024-06',
+                    
+                    Books: 0,
+                    
+                    Travel: 2550.0,
+                    
+                    'Utility bills': 0,
+                    
+                    groceries: 50.0,
+                    
+                },
+                
                 ],
-                lineColors: ['#A389D4', '#1de9b6', '#04a9f5', 'orange', '#1dc4e9', 'red'],
+                lineColors: ['#A389D4', '#1de9b6', '#04a9f5'],
                 xkey: 'period',
                 ykeys: [
-                {% for data in categories %}
-                '{{data.cat_name}}',
-                {% endfor %}
+                
+                'Books',
+                
+                'Travel',
+                
+                'Utility bills',
+                
+                'groceries',
+                
                 ],
                 labels: [
-                {% for data in categories %}
-                '{{data.cat_name}}',
-                {% endfor %}
+                
+                'Books',
+                
+                'Travel',
+                
+                'Utility bills',
+                
+                'groceries',
+                
                 ],
                 pointSize: 0,
                 lineWidth: 0,
@@ -320,6 +367,8 @@
 
         }, 700);
     });
+
+
 
 </script>
 

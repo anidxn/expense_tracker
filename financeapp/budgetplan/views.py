@@ -93,8 +93,13 @@ class ActivityAPIView(generics.ListAPIView):
         end_date    = self.request.query_params.get('end_date', None)
         if start_date and end_date:
             queryset = queryset.filter(a_date__range=[start_date, end_date])
+
+        # return the final result after filter
+        return queryset
+        
     
     """
+    GET
     http://localhost:8085/finapi/activityfilter/?start_date=2023-01-01&end_date=2023-12-31
     """
 
@@ -109,7 +114,7 @@ class CategoryExpenseAPIView(generics.ListAPIView):
     # Override the get_queryset()
     def get_queryset(self):
             # Get Category wise total_expense
-            queryset = Category.objects.annotate(total_expenditure=Sum('activity__expense')) # total_expenditure is the custom field name
+            queryset = Category.objects.annotate(total_expenditure=Sum('activity__expense', default=0)) # total_expenditure is the custom field name
             
             # Get query parameters 
             cat_tag = self.request.query_params.get('cat_tag', None)

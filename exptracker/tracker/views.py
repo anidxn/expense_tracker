@@ -9,7 +9,7 @@ import json
 
 def home(request):
     #return render(request, 'auth-signin.html')
-    return render(request, 'dashboard.html')
+    return render(request, 'dash1.html')
 
 
 def dashboard(request):
@@ -39,10 +39,15 @@ def dashboard(request):
                 area_data = garea_response.json()
                 donut_data = gdonut_response.json()
 
+                # print(area_data)
+
+                # print(donut_data)
+
                 #print(data)
                 # get username from session to display 
                 au_uname = request.session.get('active_uname', None)
                 return render(request, 'dashboard.html', {'au_uname': au_uname, 'categories': cat_data, 'tag_exp_monthwise' : bar_data, 'cname_exp_monthwise' : area_data, 'tot_cat_exp_data': donut_data})
+                
             else:
                 messages.warning(request, "Failed to retrieve data from the API.")
         except Exception as ex:
