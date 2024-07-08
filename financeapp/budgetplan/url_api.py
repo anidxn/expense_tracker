@@ -8,8 +8,8 @@ from rest_framework import routers
 rt=routers.DefaultRouter()
 #register the viewset with this router
 
-rt.register(r'category',views.CatViewSet)
-rt.register(r'activity',views.ActViewSet)
+rt.register(r'categories',views.CatViewSet, basename='category')
+rt.register(r'activities',views.ActViewSet, basename='activity')
 
 urlpatterns=[
     path('',include(rt.urls)),

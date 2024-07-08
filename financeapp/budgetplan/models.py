@@ -14,6 +14,7 @@ class Category(models.Model):
     cat_name=models.CharField(max_length=50)
     budget=models.DecimalField(max_digits = 9, decimal_places = 2)
     cat_tags = models.CharField(max_length=10, choices= C_TAGS , default= "Want")
+    user_id = models.IntegerField(default = 1)
 
     def __str__(self) :
         return self.cat_name

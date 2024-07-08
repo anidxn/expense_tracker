@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -63,8 +60,8 @@ http://localhost:8085/authapi/register/
 @api_view(['POST'])
 def user_login(request):
     if request.method == 'POST':
-        username = request.data.get('username')
-        password = request.data.get('password')
+        uname = request.data.get('username')
+        upass = request.data.get('password')
 
         """user = None
         if '@' in username:   # login by email
@@ -74,7 +71,7 @@ def user_login(request):
                 pass
 
         if not user: # login by username"""
-        user = authenticate(username=username, password=password)
+        user = authenticate(username = uname, password = upass)
 
         if user:    # login success
             token, _ = Token.objects.get_or_create(user=user)
@@ -84,9 +81,10 @@ def user_login(request):
             # print(serializer.initial_data.id)
             # print( UserSerializer(user, context=self.get_serializer_context()).data)  xxxxxxx
 
-            return Response({
-                'act_uname' : serializer.initial_data.username, 
-                'token': token.key
+            return Response({ 
+                'token': token.key,
+                'act_uname' : uname,
+                'act_uid' : serializer.initial_data.id,
                 }, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)

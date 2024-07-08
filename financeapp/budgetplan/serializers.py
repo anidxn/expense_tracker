@@ -7,7 +7,7 @@ class CatSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model=Category
-        fields="__all__"#serialize all fields of company models
+        fields="__all__"    #serialize all fields of category models
         #('name','location','active') serialise only these 3 fields
         
 # ===============================================================
@@ -18,8 +18,7 @@ class ActivitySerializer(serializers.HyperlinkedModelSerializer):
     
     class Meta:
         model=Activity
-        fields="__all__" # serialize all fields of company models
-        #('name','location','active') serialise only these 3 fields
+        fields="__all__" 
 
 # ==============================================================================
 #   In this Serializer Category is treated as a nested object for easier Read

@@ -22,7 +22,7 @@ def dashboard(request):
             'Authorization': f'Token {token}'
         }
 
-        caturl = "http://localhost:8085/finapi/category/"
+        caturl = "http://localhost:8085/finapi/categories/"
         tagexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_tags'    # last 6 months
         nameexpurl = 'http://localhost:8085/finapi/actexpfilter/?grpby=cat_name'    # last 6 months
         catexpurl = 'http://localhost:8085/finapi/categoryexpfilter/'
@@ -74,13 +74,17 @@ def activity_add(request):
             'Authorization': f'Token {token}'
         }
 
-        url = 'http://localhost:8085/finapi/activity/'
+        # get user id from session
+        uid = request.session.get('active_uid', None)
+
+        url = 'http://localhost:8085/finapi/activities/'
+        # url = 'http://localhost:8085/finapi/activities/?user_id=' + str(uid)  >> NOT required during save bcz 1-to-1 mapping with category
     
         if request.method == "POST":
             ac_name = request.POST.get('txtActName')
             ac_desc = request.POST.get('txtAcDesc')
             expense = float( request.POST.get('txtExpense'))
-            a_cat = request.POST.get('ddlCat')      # URL to category
+            a_cat = request.POST.get('ddlCat')      # URL to category --> linked to the user
             a_date = request.POST.get('txtActDate')
 
             # Step 1: Parse the date string to a datetime object
@@ -111,7 +115,9 @@ def activity_add(request):
         else:
             # Fetch categories for the dropdown
             try:
-                categories_url = 'http://localhost:8085/finapi/category/'
+                # categories_url = 'http://localhost:8085/finapi/categories/'
+                categories_url = 'http://localhost:8085/finapi/categories/?user_id=' + str(uid)  # **** REQUIRED so that only the user specific category with activity is stored
+                
                 categories_response = requests.get(categories_url, headers = headers) # pass TOKEN as header
                 if categories_response.status_code == 200:
                     categories = categories_response.json()
@@ -152,7 +158,11 @@ def getactdata(request):
             'Authorization': f'Token {token}'
         }
 
-        url = 'http://localhost:8085/finapi/activity/'
+        # get user id from session
+        uid = request.session.get('active_uid', None)
+
+        # url = 'http://localhost:8085/finapi/activities/'
+        url = 'http://localhost:8085/finapi/activities/?user_id=' + str(uid)
         
         try:
             response = requests.get(url, headers = headers) # pass TOKEN as header
@@ -190,8 +200,14 @@ def edit_activity(request, ac_id):
             'Authorization': f'Token {token}'
         }
 
-        url = f'http://localhost:8085/finapi/activity/{ac_id}/'
-        categories_url = 'http://localhost:8085/finapi/category/'
+        # get user id from session
+        uid = request.session.get('active_uid', None)
+
+        url = f'http://localhost:8085/finapi/activities/{ac_id}/'
+        # url = f'http://localhost:8085/finapi/activities/{ac_id}/?user_id=' + str(uid)   >>> NOT required bcz activity_id is unique
+
+        # categories_url = 'http://localhost:8085/finapi/categories/'
+        categories_url = 'http://localhost:8085/finapi/categories/?user_id=' + str(uid)
 
         if request.method == "POST":    # UPDATE activity
             ac_name = request.POST.get('txtActName')
@@ -266,7 +282,7 @@ def del_activity(request, ac_id):
             'Authorization': f'Token {token}'
         }
 
-        url = f'http://127.0.0.1:8085/finapi/activity/{ac_id}/'
+        url = f'http://127.0.0.1:8085/finapi/activities/{ac_id}/'       # >>> uid NOT required bcz activity_id is unique although good to prevent horizontal priv escalation
 
         try:
             response = requests.delete(url, headers = headers)  
@@ -300,7 +316,11 @@ def save_cat(request):
             'Authorization': f'Token {token}'
         }
 
-        url = 'http://localhost:8085/finapi/category/'
+        uid = request.session.get('active_uid', None)
+
+        url = 'http://localhost:8085/finapi/categories/'
+        # url = 'http://localhost:8085/finapi/categories/?user_id=' + str(uid) >>> NOT useful during insert
+
         if request.method == "POST":
             cname = request.POST.get('txtName')
             bplan = request.POST.get('txtBudget')
@@ -309,7 +329,8 @@ def save_cat(request):
             payload = {
                 'cat_name': cname, 
                 'budget': bplan,
-                'cat_tags' : cattag
+                'cat_tags' : cattag,
+                'user_id' : uid         # * * * * *
             }
 
             try:
@@ -346,7 +367,10 @@ def get_catlist(request):
             'Authorization': f'Token {token}'
         }
 
-        url = 'http://localhost:8085/finapi/category/'
+        uid = request.session.get('active_uid', None)
+
+        # url = 'http://localhost:8085/finapi/categories/'
+        url = 'http://localhost:8085/finapi/categories/?user_id=' + str(uid)
         
         try:
             response = requests.get(url, headers = headers) # pass TOKEN as header
@@ -385,7 +409,7 @@ def edit_cat(request, cat_id):
             'Authorization': f'Token {token}'
         }
 
-        url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'  # must teminate with /
+        url = 'http://127.0.0.1:8085/finapi/categories/' + str(cat_id) + '/'  # must teminate with /    # >>> UID not required bcz of unique cat id
 
         if request.method == "POST":
             # get data from form
@@ -415,7 +439,7 @@ def edit_cat(request, cat_id):
 
             return redirect('/trackmyexp/getcategorylist')  # redirect to view all
 
-        else:  # * * * * * * * get details of the selected company by API Call  * * * * * * * 
+        else:  # * * * * * * * get details of the selected category by API Call  * * * * * * * 
             try:
                 response = requests.get(url, headers = headers)  #.json()
                 if response.status_code == 200:
@@ -443,7 +467,7 @@ def del_cat(request, cat_id):
             'Authorization': f'Token {token}'
         }
     
-        url = 'http://127.0.0.1:8085/finapi/category/' + str(cat_id) + '/'
+        url = 'http://127.0.0.1:8085/finapi/categories/' + str(cat_id) + '/'    # >>> UID not required bcz of unique cat id
 
         try:
             response = requests.delete(url, headers = headers)  
@@ -467,47 +491,77 @@ def del_cat(request, cat_id):
 #   Get all activities by a selected category 
 #=------------------------------------------------------
 def get_act_by_cat(request, cat_id):
-    url = 'http://localhost:8085/finapi/category/' + str(cat_id) + '/activity/'
+    token = request.session.get('authToken', None)
 
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            # print(data)
-            return render(request, 'activities.html', {'acdata': data})
-        else:
-            messages.warning(request, "Failed to retrieve data from the API.")
-    except Exception as ex:
-        print(ex)
-        messages.warning(request, "An error occurred while fetching data.")
-    
-    return redirect('get-catlist')
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
 
-
-#=============== REPORTS =====================
-def detailed_report(request):
-    url = 'http://localhost:8085/finapi/activityfilter/'
-
-    if request.method == "POST":
-        # get data from form
-        fromDate = request.POST.get('txtFromDate')
-        toDate = request.POST.get('txtToDate')
-
-        url = url + '?start_date=' + fromDate + '&end_date=' + toDate
+        url = 'http://localhost:8085/finapi/categories/' + str(cat_id) + '/activities/'
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, headers = headers)
+
             if response.status_code == 200:
                 data = response.json()
-                #print(data)
-                return render(request, 'reports/detailed_report.html', {'acdata': data})
+                # print(data)
+                return render(request, 'activities.html', {'acdata': data})
             else:
                 messages.warning(request, "Failed to retrieve data from the API.")
         except Exception as ex:
             print(ex)
-            messages.warning(request, "An error occurred while fetching data. Please check logs.")
+            messages.warning(request, "An error occurred while fetching data.")
         
-    return render(request, 'reports/detailed_report.html')
+        return redirect('get-catlist')
+    
+    # Session missing
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
+
+
+#=============== REPORTS =====================
+def detailed_report(request):
+    token = request.session.get('authToken', None)
+
+    if token:
+        # Use the token for subsequent requests
+        headers = {
+            'Authorization': f'Token {token}'
+        }
+
+        uid = request.session.get('active_uid', None)
+
+        # url = 'http://localhost:8085/finapi/activityfilter/'
+        url = 'http://localhost:8085/finapi/activityfilter/?user_id=' + str(uid)
+
+        if request.method == "POST":
+            # get data from form
+            fromDate = request.POST.get('txtFromDate')
+            toDate = request.POST.get('txtToDate')
+
+            url = url + '&start_date=' + fromDate + '&end_date=' + toDate
+
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    data = response.json()
+                    #print(data)
+                    return render(request, 'reports/detailed_report.html', {'acdata': data})
+                else:
+                    messages.warning(request, "Failed to retrieve data from the API.")
+            except Exception as ex:
+                print(ex)
+                messages.warning(request, "An error occurred while fetching data. Please check logs.")
+            
+        return render(request, 'reports/detailed_report.html')
+    
+    # Session missing
+    else:
+        messages.warning(request, "You are not authorized to access this page. Please login")
+        return redirect('login-user')
 
 
 # ==============================================================================
@@ -583,6 +637,7 @@ def loginuser(request):
                 # Option 1: in session
                 request.session['authToken'] = token
                 request.session['active_uname'] = data['act_uname']
+                request.session['active_uid'] = data['act_uid']
                 
 
                 """ # Option 2: in a file

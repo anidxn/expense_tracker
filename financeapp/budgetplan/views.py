@@ -26,13 +26,14 @@ from django.http import JsonResponse
 #   we create a viewset class by extending viewsets.ModelViewSet which provides 
 #   default create(),retrieve(),list(),update(),partialupdate(),destroy() actions
 #   ***************************************************************************************
+"""
 class CatViewSet(viewsets.ModelViewSet):
     # * * * * * RESTRICT USE of this View class in absence of AUTH TOKEN * * * * *
     # authentication_classes = [TokenAuthentication]  ==> Required ONLY if DEFAULT Authentication class is NOT SET GLOBALLY in Settings.py
     permission_classes = [IsAuthenticated]
 
     #queryset and serializer_class is an inbuilt data object so don't change the name
-    queryset=Category.objects.all()
+    queryset = Category.objects.all()
     serializer_class=CatSerializer
 
 
@@ -47,12 +48,46 @@ class CatViewSet(viewsets.ModelViewSet):
         actlist = Activity.objects.filter(a_cat = cat) # object matching; not just any particular field
 
         # serialize the list to be displayed
-        act_serializer = ActivityCategoryLinkSerializer(actlist, many=True, context = {'request': request})
-        """
-        many = True --> lots of data 
-        """
+        act_serializer = ActivityCategoryLinkSerializer(actlist, many=True, context = {'request': request}) # many = True --> lots of data 
 
         return Response(act_serializer.data) # send API response in JSON format
+"""
+
+class CatViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]  # Comment this line for testing purpose witout auth token
+
+    serializer_class=CatSerializer
+
+    # * * * Get customized result from db based upon query parameter, e.g. user_id * * * *
+    def get_queryset(self):
+        uid = self.request.query_params.get('user_id')
+
+        if uid is not None:
+            return Category.objects.filter(user_id=uid)
+        else:
+            return Category.objects.all()
+    
+    @action(detail=True, methods=['get'])
+    def activities(self, request, pk = None):
+
+        cat = Category.objects.get(cat_id = pk)
+        actlist = Activity.objects.filter(a_cat = cat) 
+        act_serializer = ActivityCategoryLinkSerializer(actlist, many=True, context = {'request': request}) # many = True --> lots of data 
+
+        return Response(act_serializer.data) # send API response in JSON format
+    
+"""
+---- for admin user -----
+http://localhost:8085/finapi/categories/
+http://localhost:8085/finapi/categories/1/
+http://localhost:8085/finapi/categories/1/activity/
+
+---- for specific user -----
+http://localhost:8085/finapi/categories/?user_id=2
+http://localhost:8085/finapi/categories/1/?user_id=2
+http://localhost:8085/finapi/categories/1/activity/?user_id=2
+"""
+
 
 #------------------------------------------------------------------------------------
 #   Switch between 2 available serializers to deal with Foregn Key Linked Model Data
@@ -60,16 +95,35 @@ class CatViewSet(viewsets.ModelViewSet):
 #-------------------------------------------------------------------------------------
 class ActViewSet(viewsets.ModelViewSet):
     # * * * * * RESTRICT USE of this View class in absence of AUTH TOKEN * * * * *
+    
     # authentication_classes = [TokenAuthentication]  ==> Required ONLY if DEFAULT Authentication class is NOT SET GLOBALLY in Settings.py
-    permission_classes = [IsAuthenticated]
 
-    queryset=Activity.objects.all()
+    #permission_classes = [IsAuthenticated]
+
+    # queryset = Activity.objects.all()
+    # ----------- Alternatively Get customized result from db based upon query parameter, e.g. user_id -------
+    def get_queryset(self):
+        uid = self.request.query_params.get('user_id')
+
+        if uid is not None:
+            act_categories = Category.objects.filter(user_id = uid)
+            # Filter activities based on those categories
+            return Activity.objects.filter(a_cat__in = act_categories)
+        else:
+            return Activity.objects.all()
+
+
     # serializer_class=ActSerializer
-
+    # ---------- Alternatively switch between serializers -----------
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ActivityCategoryLinkSerializer
         return ActivitySerializer
+    
+"""
+http://localhost:8085/finapi/activities/
+http://localhost:8085/finapi/activities/?user_id=1
+"""
 
 
 
@@ -85,7 +139,16 @@ class ActivityAPIView(generics.ListAPIView):
     
     # Override the get_queryset()
     def get_queryset(self):
-        queryset = Activity.objects.all()  # get all activities from DB
+        # queryset = Activity.objects.all()  # get all activities from DB
+
+        # ----- Filter activities based on logged in user ----
+        uid = self.request.query_params.get('user_id')
+
+        if uid is not None:
+            act_categories = Category.objects.filter(user_id = uid)
+            queryset = Activity.objects.filter(a_cat__in = act_categories)
+        else:
+            queryset = Activity.objects.all()
 
         # check for appropriate query parameters
         # for report
@@ -101,6 +164,7 @@ class ActivityAPIView(generics.ListAPIView):
     """
     GET
     http://localhost:8085/finapi/activityfilter/?start_date=2023-01-01&end_date=2023-12-31
+    http://localhost:8085/finapi/activityfilter/?user_id=1&start_date=2023-01-01&end_date=2023-12-31
     """
 
 #--------------------------------------------------------------------------------------------------
